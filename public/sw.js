@@ -1,5 +1,15 @@
 const CACHE_NAME = "kakeibo-shell-v1";
-const APP_SHELL = ["/", "/manifest.webmanifest", "/icon-192.png", "/icon-512.png"];
+
+function pathFromScope(path) {
+  return new URL(path, self.registration.scope).pathname;
+}
+
+const APP_SHELL = [
+  pathFromScope("./"),
+  pathFromScope("./manifest.webmanifest"),
+  pathFromScope("./icon-192.png"),
+  pathFromScope("./icon-512.png"),
+];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(APP_SHELL)));
@@ -19,7 +29,7 @@ self.addEventListener("fetch", (event) => {
   if (event.request.method !== "GET") return;
 
   if (event.request.mode === "navigate") {
-    event.respondWith(fetch(event.request).catch(() => caches.match("/")));
+    event.respondWith(fetch(event.request).catch(() => caches.match(pathFromScope("./"))));
     return;
   }
 

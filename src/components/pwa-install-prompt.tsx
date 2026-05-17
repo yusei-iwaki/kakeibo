@@ -15,11 +15,12 @@ export function PwaInstallPrompt() {
   const [installPrompt, setInstallPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [isIOS, setIsIOS] = useState(false);
   const [isStandalone, setIsStandalone] = useState(false);
+  const basePath = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
 
   useEffect(() => {
     if ("serviceWorker" in navigator) {
-      navigator.serviceWorker.register("/sw.js", {
-        scope: "/",
+      navigator.serviceWorker.register(`${basePath}/sw.js`, {
+        scope: `${basePath}/`,
         updateViaCache: "none",
       }).catch(() => undefined);
     }
@@ -39,7 +40,7 @@ export function PwaInstallPrompt() {
 
     window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
     return () => window.removeEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
-  }, []);
+  }, [basePath]);
 
   async function install() {
     if (!installPrompt) return;

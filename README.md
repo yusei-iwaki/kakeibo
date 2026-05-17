@@ -36,6 +36,8 @@ npm run build
 
 ## デプロイ
 
-Next.js アプリとして Vercel へのデプロイを想定しています。現時点では環境変数は不要です。
+GitHub Pages へのデプロイに対応しています。`main` ブランチへ push すると、GitHub Actions が `next build` で静的出力を作成し、`out/` を GitHub Pages にデプロイします。
 
 PWA としてホーム画面へ追加するには、デプロイ先を HTTPS で配信してください。
+
+初回だけ GitHub のリポジトリ設定で `Pages` の source を `GitHub Actions` に設定してください。
