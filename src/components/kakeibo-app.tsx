@@ -1,6 +1,7 @@
 "use client";
 
 import { ChangeEvent, FormEvent, useEffect, useMemo, useRef, useState } from "react";
+import { PwaInstallPrompt } from "@/components/pwa-install-prompt";
 
 type TransactionType = "income" | "expense";
 
@@ -291,6 +292,7 @@ export function KakeiboApp() {
             <button className="min-h-11 rounded-full border border-[#d8c8af] bg-white px-3 py-2 text-xs font-semibold text-[#5b4a3c] shadow-sm hover:bg-[#fff4df] sm:px-4 sm:text-sm" onClick={() => fileInputRef.current?.click()} type="button">
               JSON読み込み
             </button>
+            <PwaInstallPrompt />
             <input ref={fileInputRef} className="hidden" accept="application/json" onChange={importData} type="file" />
           </div>
         </header>

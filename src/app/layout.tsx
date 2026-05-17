@@ -1,9 +1,25 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
   title: "家計簿",
   description: "カレンダー入力と収支グラフで管理する個人用家計簿",
+  applicationName: "暮らしのお金",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "家計簿",
+  },
+  formatDetection: {
+    telephone: false,
+  },
+  icons: {
+    apple: "/icon-192.png",
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#c77a3d",
 };
 
 export default function RootLayout({
