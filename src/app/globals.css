@@ -36,6 +36,17 @@ body {
     sans-serif;
 }
 
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 12px;
+}
+
+@supports (padding: env(safe-area-inset-bottom)) {
+  body {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+}
+
 button,
 input,
 select,

@@ -190,7 +190,7 @@ export function KakeiboApp() {
 
   function editTransaction(transaction: Transaction) {
     setEditingTransactionId(transaction.id);
-    setSelectedDate(transaction.date);
+    selectDate(transaction.date);
     setTransactionForm({
       date: transaction.date,
       type: transaction.type,
@@ -274,61 +274,68 @@ export function KakeiboApp() {
   }
 
   return (
-    <main className="min-h-screen px-4 py-5 text-[#342820] sm:px-6 lg:px-8">
-      <div className="mx-auto grid w-full max-w-7xl gap-5">
-        <header className="flex flex-col gap-4 rounded-[28px] border border-[#eadfcd] bg-[#fffaf2]/88 p-5 shadow-[0_24px_80px_rgba(83,60,36,0.10)] backdrop-blur md:flex-row md:items-end md:justify-between">
+    <main className="min-h-screen px-3 pb-24 pt-3 text-[#342820] sm:px-6 sm:py-5 lg:px-8">
+      <div className="mx-auto grid w-full max-w-7xl gap-4 sm:gap-5">
+        <header className="rounded-[22px] border border-[#eadfcd] bg-[#fffaf2]/92 p-4 shadow-[0_18px_60px_rgba(83,60,36,0.10)] backdrop-blur sm:rounded-[28px] sm:p-5 md:flex md:items-end md:justify-between md:gap-4">
           <div>
-            <p className="text-sm font-semibold text-[#b36b35]">ひとり用の家計簿</p>
-            <h1 className="mt-1 text-3xl font-bold tracking-tight sm:text-5xl">暮らしのお金</h1>
-            <p className="mt-3 max-w-2xl text-sm leading-6 text-[#78685c]">
+            <p className="text-xs font-semibold text-[#b36b35] sm:text-sm">ひとり用の家計簿</p>
+            <h1 className="mt-1 text-2xl font-bold tracking-tight sm:text-5xl">暮らしのお金</h1>
+            <p className="mt-2 max-w-2xl text-xs leading-5 text-[#78685c] sm:mt-3 sm:text-sm sm:leading-6">
               カレンダーで日々の収支を入力し、月ごとの流れと固定費をまとめて確認できます。データはこのブラウザに保存されます。
             </p>
           </div>
-          <div className="flex flex-wrap gap-2">
-            <button className="rounded-full border border-[#d8c8af] bg-white px-4 py-2 text-sm font-semibold text-[#5b4a3c] shadow-sm hover:bg-[#fff4df]" onClick={exportData} type="button">
+          <div className="mt-3 grid grid-cols-2 gap-2 md:mt-0 md:flex md:flex-wrap">
+            <button className="min-h-11 rounded-full border border-[#d8c8af] bg-white px-3 py-2 text-xs font-semibold text-[#5b4a3c] shadow-sm hover:bg-[#fff4df] sm:px-4 sm:text-sm" onClick={exportData} type="button">
               JSON書き出し
             </button>
-            <button className="rounded-full border border-[#d8c8af] bg-white px-4 py-2 text-sm font-semibold text-[#5b4a3c] shadow-sm hover:bg-[#fff4df]" onClick={() => fileInputRef.current?.click()} type="button">
+            <button className="min-h-11 rounded-full border border-[#d8c8af] bg-white px-3 py-2 text-xs font-semibold text-[#5b4a3c] shadow-sm hover:bg-[#fff4df] sm:px-4 sm:text-sm" onClick={() => fileInputRef.current?.click()} type="button">
               JSON読み込み
             </button>
             <input ref={fileInputRef} className="hidden" accept="application/json" onChange={importData} type="file" />
           </div>
         </header>
 
-        <section className="grid gap-3 md:grid-cols-3">
+        <nav className="fixed inset-x-3 bottom-3 z-20 grid grid-cols-4 gap-1 rounded-full border border-[#e4d5bf] bg-[#fffaf2]/95 p-1 shadow-[0_16px_40px_rgba(83,60,36,0.20)] backdrop-blur sm:hidden" aria-label="主要メニュー">
+          <a className="rounded-full px-2 py-2 text-center text-xs font-bold text-[#6d5a4a]" href="#input">入力</a>
+          <a className="rounded-full px-2 py-2 text-center text-xs font-bold text-[#6d5a4a]" href="#calendar">暦</a>
+          <a className="rounded-full px-2 py-2 text-center text-xs font-bold text-[#6d5a4a]" href="#charts">分析</a>
+          <a className="rounded-full px-2 py-2 text-center text-xs font-bold text-[#6d5a4a]" href="#fixed">固定</a>
+        </nav>
+
+        <section className="-mx-3 flex snap-x gap-3 overflow-x-auto px-3 pb-1 md:mx-0 md:grid md:grid-cols-3 md:overflow-visible md:px-0 md:pb-0">
           <SummaryCard label="収入" value={income} tone="income" />
           <SummaryCard label="支出" value={expense} tone="expense" />
           <SummaryCard label="差額" value={balance} tone={balance >= 0 ? "income" : "expense"} />
         </section>
 
         <section className="grid gap-5 xl:grid-cols-[1.2fr_0.8fr]">
-          <div className="rounded-[24px] border border-[#eadfcd] bg-[#fffaf2]/90 p-4 shadow-sm">
-            <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+          <div id="calendar" className="order-2 rounded-[22px] border border-[#eadfcd] bg-[#fffaf2]/90 p-3 shadow-sm sm:rounded-[24px] sm:p-4 xl:order-1">
+            <div className="mb-3 grid gap-3 sm:mb-4 sm:flex sm:flex-wrap sm:items-center sm:justify-between">
               <div>
-                <h2 className="text-xl font-bold">カレンダー</h2>
-                <p className="text-sm text-[#78685c]">日付を選ぶと、その日の入力と明細を確認できます。</p>
+                <h2 className="text-lg font-bold sm:text-xl">カレンダー</h2>
+                <p className="text-xs text-[#78685c] sm:text-sm">日付を選ぶと、その日の入力と明細を確認できます。</p>
               </div>
-              <div className="flex items-center gap-2">
-                <button className="h-10 rounded-full border border-[#d8c8af] bg-white px-4 font-bold hover:bg-[#fff4df]" onClick={() => moveMonth(-1)} type="button">
+              <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2">
+                <button className="min-h-11 rounded-full border border-[#d8c8af] bg-white px-3 text-sm font-bold hover:bg-[#fff4df] sm:px-4" onClick={() => moveMonth(-1)} type="button">
                   前月
                 </button>
-                <strong className="min-w-28 text-center text-lg">{currentMonth}</strong>
-                <button className="h-10 rounded-full border border-[#d8c8af] bg-white px-4 font-bold hover:bg-[#fff4df]" onClick={() => moveMonth(1)} type="button">
+                <strong className="min-w-24 text-center text-base sm:min-w-28 sm:text-lg">{currentMonth}</strong>
+                <button className="min-h-11 rounded-full border border-[#d8c8af] bg-white px-3 text-sm font-bold hover:bg-[#fff4df] sm:px-4" onClick={() => moveMonth(1)} type="button">
                   翌月
                 </button>
               </div>
             </div>
 
-            <div className="grid grid-cols-7 gap-2 text-center text-xs font-bold text-[#9a7d5d]">
+            <div className="grid grid-cols-7 gap-1 text-center text-[11px] font-bold text-[#9a7d5d] sm:gap-2 sm:text-xs">
               {weekdayLabels.map((label) => (
                 <span key={label}>{label}</span>
               ))}
             </div>
-            <div className="mt-2 grid grid-cols-7 gap-2">
+            <div className="mt-2 grid grid-cols-7 gap-1 sm:gap-2">
               {days.map((day, index) =>
                 day ? (
                   <button
-                    className={`min-h-24 rounded-2xl border p-2 text-left transition hover:-translate-y-0.5 hover:shadow-md ${
+                    className={`min-h-14 rounded-xl border p-1.5 text-left transition hover:-translate-y-0.5 hover:shadow-md sm:min-h-24 sm:rounded-2xl sm:p-2 ${
                       day.date === selectedDate
                         ? "border-[#c77a3d] bg-[#fff0d7]"
                         : "border-[#eadfcd] bg-white/80 hover:bg-[#fff8eb]"
@@ -337,9 +344,13 @@ export function KakeiboApp() {
                     onClick={() => selectDate(day.date)}
                     type="button"
                   >
-                    <span className="block text-sm font-bold">{day.day}</span>
-                    <span className="mt-2 block truncate text-[11px] text-[#38755f]">+{formatCompact(day.income)}</span>
-                    <span className="block truncate text-[11px] text-[#ba5a45]">-{formatCompact(day.expense)}</span>
+                    <span className="block text-xs font-bold sm:text-sm">{day.day}</span>
+                    <span className="mt-1 flex gap-1 sm:hidden">
+                      {day.income ? <i className="h-1.5 w-1.5 rounded-full bg-[#5c9278]" /> : null}
+                      {day.expense ? <i className="h-1.5 w-1.5 rounded-full bg-[#d4825a]" /> : null}
+                    </span>
+                    <span className="mt-2 hidden truncate text-[11px] text-[#38755f] sm:block">+{formatCompact(day.income)}</span>
+                    <span className="hidden truncate text-[11px] text-[#ba5a45] sm:block">-{formatCompact(day.expense)}</span>
                   </button>
                 ) : (
                   <div key={`blank-${index}`} />
@@ -348,16 +359,16 @@ export function KakeiboApp() {
             </div>
           </div>
 
-          <div className="grid gap-5">
-            <form className="rounded-[24px] border border-[#eadfcd] bg-[#fffaf2]/90 p-4 shadow-sm" onSubmit={submitTransaction}>
+          <div id="input" className="order-1 grid gap-4 xl:order-2">
+            <form className="rounded-[22px] border border-[#eadfcd] bg-[#fffaf2]/90 p-4 shadow-sm sm:rounded-[24px]" onSubmit={submitTransaction}>
               <div className="mb-4 flex items-center justify-between gap-3">
                 <div>
-                  <h2 className="text-xl font-bold">{editingTransactionId ? "明細を編集" : "明細を入力"}</h2>
+                  <h2 className="text-lg font-bold sm:text-xl">{editingTransactionId ? "明細を編集" : "明細を入力"}</h2>
                   <p className="text-sm text-[#78685c]">{selectedDate}</p>
                 </div>
                 {editingTransactionId ? (
                   <button
-                    className="rounded-full border border-[#d8c8af] px-3 py-1.5 text-sm font-semibold"
+                    className="min-h-10 rounded-full border border-[#d8c8af] px-3 py-1.5 text-sm font-semibold"
                     onClick={() => {
                       setEditingTransactionId(null);
                       setTransactionForm(emptyForm(selectedDate));
@@ -372,12 +383,12 @@ export function KakeiboApp() {
               <div className="grid gap-3">
                 <label className="grid gap-1 text-sm font-semibold">
                   日付
-                  <input className="rounded-xl border border-[#d8c8af] bg-white px-3 py-2" value={transactionForm.date} onChange={(event) => setTransactionForm((form) => ({ ...form, date: event.target.value }))} type="date" />
+                  <input className="min-h-12 rounded-xl border border-[#d8c8af] bg-white px-3 py-2 text-base" value={transactionForm.date} onChange={(event) => setTransactionForm((form) => ({ ...form, date: event.target.value }))} type="date" />
                 </label>
                 <div className="grid grid-cols-2 gap-2 rounded-2xl bg-[#f2eadf] p-1">
                   {(["expense", "income"] as const).map((type) => (
                     <button
-                      className={`rounded-xl px-3 py-2 text-sm font-bold ${transactionForm.type === type ? "bg-white shadow-sm" : "text-[#806d5c]"}`}
+                      className={`min-h-11 rounded-xl px-3 py-2 text-sm font-bold ${transactionForm.type === type ? "bg-white shadow-sm" : "text-[#806d5c]"}`}
                       key={type}
                       onClick={() =>
                         setTransactionForm((form) => ({
@@ -394,7 +405,7 @@ export function KakeiboApp() {
                 </div>
                 <label className="grid gap-1 text-sm font-semibold">
                   カテゴリ
-                  <select className="rounded-xl border border-[#d8c8af] bg-white px-3 py-2" value={transactionForm.category} onChange={(event) => setTransactionForm((form) => ({ ...form, category: event.target.value }))}>
+                  <select className="min-h-12 rounded-xl border border-[#d8c8af] bg-white px-3 py-2 text-base" value={transactionForm.category} onChange={(event) => setTransactionForm((form) => ({ ...form, category: event.target.value }))}>
                     {(transactionForm.type === "expense" ? expenseCategories : incomeCategories).map((category) => (
                       <option key={category}>{category}</option>
                     ))}
@@ -402,20 +413,20 @@ export function KakeiboApp() {
                 </label>
                 <label className="grid gap-1 text-sm font-semibold">
                   金額
-                  <input className="rounded-xl border border-[#d8c8af] bg-white px-3 py-2" min="0" value={transactionForm.amount || ""} onChange={(event) => setTransactionForm((form) => ({ ...form, amount: Number(event.target.value) }))} placeholder="例: 1200" type="number" />
+                  <input className="min-h-12 rounded-xl border border-[#d8c8af] bg-white px-3 py-2 text-base" inputMode="numeric" min="0" value={transactionForm.amount || ""} onChange={(event) => setTransactionForm((form) => ({ ...form, amount: Number(event.target.value) }))} placeholder="例: 1200" type="number" />
                 </label>
                 <label className="grid gap-1 text-sm font-semibold">
                   メモ
-                  <input className="rounded-xl border border-[#d8c8af] bg-white px-3 py-2" value={transactionForm.memo} onChange={(event) => setTransactionForm((form) => ({ ...form, memo: event.target.value }))} placeholder="スーパー、家賃など" />
+                  <input className="min-h-12 rounded-xl border border-[#d8c8af] bg-white px-3 py-2 text-base" value={transactionForm.memo} onChange={(event) => setTransactionForm((form) => ({ ...form, memo: event.target.value }))} placeholder="スーパー、家賃など" />
                 </label>
-                <button className="rounded-xl bg-[#c77a3d] px-4 py-3 font-bold text-white shadow-sm hover:bg-[#ad6631]" type="submit">
+                <button className="min-h-12 rounded-xl bg-[#c77a3d] px-4 py-3 font-bold text-white shadow-sm hover:bg-[#ad6631]" type="submit">
                   {editingTransactionId ? "更新する" : "追加する"}
                 </button>
               </div>
             </form>
 
-            <div className="rounded-[24px] border border-[#eadfcd] bg-[#fffaf2]/90 p-4 shadow-sm">
-              <h2 className="text-xl font-bold">選択日の明細</h2>
+            <div className="rounded-[22px] border border-[#eadfcd] bg-[#fffaf2]/90 p-4 shadow-sm sm:rounded-[24px]">
+              <h2 className="text-lg font-bold sm:text-xl">選択日の明細</h2>
               <div className="mt-3 grid gap-2">
                 {selectedTransactions.length ? (
                   selectedTransactions.map((transaction) => (
@@ -430,11 +441,11 @@ export function KakeiboApp() {
                           {formatYen(transaction.amount)}
                         </strong>
                       </div>
-                      <div className="mt-3 flex gap-2">
-                        <button className="rounded-full border border-[#d8c8af] px-3 py-1 text-xs font-bold" onClick={() => editTransaction(transaction)} type="button">
+                      <div className="mt-3 grid grid-cols-2 gap-2 sm:flex">
+                        <button className="min-h-9 rounded-full border border-[#d8c8af] px-3 py-1 text-xs font-bold" onClick={() => editTransaction(transaction)} type="button">
                           編集
                         </button>
-                        <button className="rounded-full border border-[#e4b5a7] px-3 py-1 text-xs font-bold text-[#a94631]" onClick={() => deleteTransaction(transaction.id)} type="button">
+                        <button className="min-h-9 rounded-full border border-[#e4b5a7] px-3 py-1 text-xs font-bold text-[#a94631]" onClick={() => deleteTransaction(transaction.id)} type="button">
                           削除
                         </button>
                       </div>
@@ -449,13 +460,13 @@ export function KakeiboApp() {
         </section>
 
         <section className="grid gap-5 xl:grid-cols-[0.9fr_1.1fr]">
-          <div className="rounded-[24px] border border-[#eadfcd] bg-[#fffaf2]/90 p-4 shadow-sm">
-            <div className="mb-4 flex items-center justify-between gap-3">
+          <div id="fixed" className="rounded-[22px] border border-[#eadfcd] bg-[#fffaf2]/90 p-4 shadow-sm sm:rounded-[24px]">
+            <div className="mb-4 grid gap-3 sm:flex sm:items-center sm:justify-between">
               <div>
-                <h2 className="text-xl font-bold">固定費</h2>
+                <h2 className="text-lg font-bold sm:text-xl">固定費</h2>
                 <p className="text-sm text-[#78685c]">毎月発生する支出を登録して、今月分へまとめて反映できます。</p>
               </div>
-              <button className="rounded-full bg-[#6f8f68] px-4 py-2 text-sm font-bold text-white hover:bg-[#5d7d56]" onClick={applyFixedCosts} type="button">
+              <button className="min-h-11 rounded-full bg-[#6f8f68] px-4 py-2 text-sm font-bold text-white hover:bg-[#5d7d56]" onClick={applyFixedCosts} type="button">
                 今月に反映
               </button>
             </div>
@@ -464,15 +475,15 @@ export function KakeiboApp() {
               <div className="grid gap-3 sm:grid-cols-2">
                 <label className="grid gap-1 text-sm font-semibold">
                   名称
-                  <input className="rounded-xl border border-[#d8c8af] bg-white px-3 py-2" value={fixedCostForm.name} onChange={(event) => setFixedCostForm((form) => ({ ...form, name: event.target.value }))} placeholder="家賃、サブスクなど" />
+                  <input className="min-h-12 rounded-xl border border-[#d8c8af] bg-white px-3 py-2 text-base" value={fixedCostForm.name} onChange={(event) => setFixedCostForm((form) => ({ ...form, name: event.target.value }))} placeholder="家賃、サブスクなど" />
                 </label>
                 <label className="grid gap-1 text-sm font-semibold">
                   金額
-                  <input className="rounded-xl border border-[#d8c8af] bg-white px-3 py-2" min="0" value={fixedCostForm.amount || ""} onChange={(event) => setFixedCostForm((form) => ({ ...form, amount: Number(event.target.value) }))} type="number" />
+                  <input className="min-h-12 rounded-xl border border-[#d8c8af] bg-white px-3 py-2 text-base" inputMode="numeric" min="0" value={fixedCostForm.amount || ""} onChange={(event) => setFixedCostForm((form) => ({ ...form, amount: Number(event.target.value) }))} type="number" />
                 </label>
                 <label className="grid gap-1 text-sm font-semibold">
                   カテゴリ
-                  <select className="rounded-xl border border-[#d8c8af] bg-white px-3 py-2" value={fixedCostForm.category} onChange={(event) => setFixedCostForm((form) => ({ ...form, category: event.target.value }))}>
+                  <select className="min-h-12 rounded-xl border border-[#d8c8af] bg-white px-3 py-2 text-base" value={fixedCostForm.category} onChange={(event) => setFixedCostForm((form) => ({ ...form, category: event.target.value }))}>
                     {expenseCategories.map((category) => (
                       <option key={category}>{category}</option>
                     ))}
@@ -480,10 +491,10 @@ export function KakeiboApp() {
                 </label>
                 <label className="grid gap-1 text-sm font-semibold">
                   毎月の日付
-                  <input className="rounded-xl border border-[#d8c8af] bg-white px-3 py-2" max="31" min="1" value={fixedCostForm.day} onChange={(event) => setFixedCostForm((form) => ({ ...form, day: Number(event.target.value) }))} type="number" />
+                  <input className="min-h-12 rounded-xl border border-[#d8c8af] bg-white px-3 py-2 text-base" inputMode="numeric" max="31" min="1" value={fixedCostForm.day} onChange={(event) => setFixedCostForm((form) => ({ ...form, day: Number(event.target.value) }))} type="number" />
                 </label>
               </div>
-              <button className="rounded-xl bg-[#342820] px-4 py-3 font-bold text-white hover:bg-[#514034]" type="submit">
+              <button className="min-h-12 rounded-xl bg-[#342820] px-4 py-3 font-bold text-white hover:bg-[#514034]" type="submit">
                 固定費を追加
               </button>
             </form>
@@ -498,11 +509,11 @@ export function KakeiboApp() {
                         毎月{cost.day}日 / {cost.category} / {formatYen(cost.amount)}
                       </p>
                     </div>
-                    <div className="flex gap-2">
-                      <button className="rounded-full border border-[#d8c8af] px-3 py-1 text-xs font-bold" onClick={() => toggleFixedCost(cost.id)} type="button">
+                    <div className="grid gap-2 sm:flex">
+                      <button className="min-h-9 rounded-full border border-[#d8c8af] px-3 py-1 text-xs font-bold" onClick={() => toggleFixedCost(cost.id)} type="button">
                         {cost.enabled ? "有効" : "無効"}
                       </button>
-                      <button className="rounded-full border border-[#e4b5a7] px-3 py-1 text-xs font-bold text-[#a94631]" onClick={() => deleteFixedCost(cost.id)} type="button">
+                      <button className="min-h-9 rounded-full border border-[#e4b5a7] px-3 py-1 text-xs font-bold text-[#a94631]" onClick={() => deleteFixedCost(cost.id)} type="button">
                         削除
                       </button>
                     </div>
@@ -514,7 +525,7 @@ export function KakeiboApp() {
             </div>
           </div>
 
-          <div className="grid gap-5">
+          <div id="charts" className="grid gap-5">
             <ChartPanel title="直近6か月の収支" subtitle="収入・支出・差額を月ごとに比較します。">
               <MonthlyChart data={trendData} />
             </ChartPanel>
@@ -530,17 +541,17 @@ export function KakeiboApp() {
 
 function SummaryCard({ label, value, tone }: { label: string; value: number; tone: "income" | "expense" }) {
   return (
-    <div className="rounded-[24px] border border-[#eadfcd] bg-[#fffaf2]/90 p-5 shadow-sm">
+    <div className="min-w-[72vw] snap-start rounded-[22px] border border-[#eadfcd] bg-[#fffaf2]/90 p-4 shadow-sm sm:min-w-0 sm:rounded-[24px] sm:p-5">
       <p className="text-sm font-bold text-[#78685c]">{label}</p>
-      <strong className={`mt-3 block text-3xl ${tone === "income" ? "text-[#33745f]" : "text-[#b8523e]"}`}>{formatYen(value)}</strong>
+      <strong className={`mt-2 block text-2xl sm:mt-3 sm:text-3xl ${tone === "income" ? "text-[#33745f]" : "text-[#b8523e]"}`}>{formatYen(value)}</strong>
     </div>
   );
 }
 
 function ChartPanel({ title, subtitle, children }: { title: string; subtitle: string; children: React.ReactNode }) {
   return (
-    <div className="rounded-[24px] border border-[#eadfcd] bg-[#fffaf2]/90 p-4 shadow-sm">
-      <h2 className="text-xl font-bold">{title}</h2>
+    <div className="rounded-[22px] border border-[#eadfcd] bg-[#fffaf2]/90 p-4 shadow-sm sm:rounded-[24px]">
+      <h2 className="text-lg font-bold sm:text-xl">{title}</h2>
       <p className="text-sm text-[#78685c]">{subtitle}</p>
       <div className="mt-4">{children}</div>
     </div>
@@ -551,7 +562,7 @@ function MonthlyChart({ data }: { data: ReturnType<typeof buildTrendData> }) {
   const maxValue = Math.max(1, ...data.flatMap((item) => [item.income, item.expense]));
   return (
     <div className="grid gap-3">
-      <div className="h-72 rounded-2xl bg-white/80 p-3">
+      <div className="h-56 rounded-2xl bg-white/80 p-3 sm:h-72">
         <svg className="h-full w-full" role="img" viewBox="0 0 600 260">
           {data.map((item, index) => {
             const groupX = 24 + index * 94;
