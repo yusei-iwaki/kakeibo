@@ -6,9 +6,13 @@ import {
   buildCategoryTotals,
   buildTrendData,
   clampDay,
+  clampMonthStartDay,
   createId,
+  defaultSettings,
   emptyFixedCostForm,
   emptyTransactionForm,
+  formatPeriodRange,
+  getPeriodMonthKeyForDate,
   parseMonthKey,
   parseStoredData,
   STORAGE_KEY,
@@ -21,6 +25,7 @@ import type { AppSection, FixedCost, StoredData, ToastState, Transaction, Transa
 export function useKakeibo() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [fixedCosts, setFixedCosts] = useState<FixedCost[]>([]);
+  const [settings, setSettings] = useState(() => defaultSettings);
   const [currentMonth, setCurrentMonth] = useState(() => toMonthKey(new Date()));
   const [selectedDate, setSelectedDate] = useState(() => todayString());
   const [transactionForm, setTransactionForm] = useState(() => emptyTransactionForm(todayString()));
@@ -37,15 +42,17 @@ export function useKakeibo() {
       const parsed = parseStoredData(rawData);
       setTransactions(parsed.transactions);
       setFixedCosts(parsed.fixedCosts);
+      setSettings(parsed.settings);
+      setCurrentMonth(getPeriodMonthKeyForDate(todayString(), parsed.settings.monthStartDay));
       setHydrated(true);
     });
   }, []);
 
   useEffect(() => {
     if (!hydrated) return;
-    const data: StoredData = { transactions, fixedCosts };
+    const data: StoredData = { transactions, fixedCosts, settings };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-  }, [fixedCosts, hydrated, transactions]);
+  }, [fixedCosts, hydrated, settings, transactions]);
 
   useEffect(() => {
     if (!toast) return;
@@ -54,8 +61,11 @@ export function useKakeibo() {
   }, [toast]);
 
   const monthTransactions = useMemo(
-    () => transactions.filter((transaction) => transaction.date.startsWith(currentMonth)),
-    [currentMonth, transactions],
+    () =>
+      transactions.filter(
+        (transaction) => getPeriodMonthKeyForDate(transaction.date, settings.monthStartDay) === currentMonth,
+      ),
+    [currentMonth, settings.monthStartDay, transactions],
   );
   const groupedMonthTransactions = useMemo(
     () =>
@@ -75,9 +85,11 @@ export function useKakeibo() {
   const income = sumTransactions(monthTransactions, "income");
   const expense = sumTransactions(monthTransactions, "expense");
   const balance = income - expense;
-  const calendarDays = buildCalendarDays(currentMonth, monthTransactions);
-  const categoryTotals = buildCategoryTotals(monthTransactions);
-  const trendData = buildTrendData(transactions, currentMonth);
+  const calendarDays = buildCalendarDays(currentMonth, monthTransactions, settings.monthStartDay);
+  const expenseCategoryTotals = buildCategoryTotals(monthTransactions, "expense");
+  const incomeCategoryTotals = buildCategoryTotals(monthTransactions, "income");
+  const periodRangeLabel = formatPeriodRange(currentMonth, settings.monthStartDay);
+  const trendData = buildTrendData(transactions, currentMonth, settings.monthStartDay);
 
   function notify(message: string, tone: NonNullable<ToastState>["tone"] = "success") {
     setToast({ message, tone });
@@ -93,7 +105,6 @@ export function useKakeibo() {
     date.setMonth(date.getMonth() + offset);
     const nextMonth = toMonthKey(date);
     setCurrentMonth(nextMonth);
-    selectDate(`${nextMonth}-01`);
   }
 
   function selectDate(date: string) {
@@ -105,7 +116,7 @@ export function useKakeibo() {
     setTransactionForm((form) => ({ ...form, ...nextForm }));
     if (nextForm.date) {
       setSelectedDate(nextForm.date);
-      setCurrentMonth(nextForm.date.slice(0, 7));
+      setCurrentMonth(getPeriodMonthKeyForDate(nextForm.date, settings.monthStartDay));
     }
   }
 
@@ -134,14 +145,14 @@ export function useKakeibo() {
 
     const today = todayString();
     setSelectedDate(today);
-    setCurrentMonth(today.slice(0, 7));
+    setCurrentMonth(getPeriodMonthKeyForDate(today, settings.monthStartDay));
     setTransactionForm(emptyTransactionForm(today));
   }
 
   function editTransaction(transaction: Transaction) {
     setEditingTransactionId(transaction.id);
     selectDate(transaction.date);
-    setCurrentMonth(transaction.date.slice(0, 7));
+    setCurrentMonth(getPeriodMonthKeyForDate(transaction.date, settings.monthStartDay));
     setActiveSection("input");
     setTransactionForm({
       date: transaction.date,
@@ -196,9 +207,14 @@ export function useKakeibo() {
     setTransactions((items) => {
       const nextItems = [...items];
       enabledCosts.forEach((cost) => {
-        const date = `${currentMonth}-${`${clampDay(currentMonth, cost.day)}`.padStart(2, "0")}`;
+        const targetMonth = cost.day < settings.monthStartDay
+          ? toMonthKey(new Date(parseMonthKey(currentMonth).getFullYear(), parseMonthKey(currentMonth).getMonth() + 1, 1))
+          : currentMonth;
+        const date = `${targetMonth}-${`${clampDay(targetMonth, cost.day)}`.padStart(2, "0")}`;
         const existingIndex = nextItems.findIndex(
-          (transaction) => transaction.fixedCostId === cost.id && transaction.date.startsWith(currentMonth),
+          (transaction) =>
+            transaction.fixedCostId === cost.id &&
+            getPeriodMonthKeyForDate(transaction.date, settings.monthStartDay) === currentMonth,
         );
         const nextTransaction: Transaction = {
           id: existingIndex >= 0 ? nextItems[existingIndex].id : createId(),
@@ -223,8 +239,14 @@ export function useKakeibo() {
     setActiveSection("calendar");
   }
 
+  function updateMonthStartDay(day: number) {
+    const monthStartDay = clampMonthStartDay(day);
+    setSettings((current) => ({ ...current, monthStartDay }));
+    setCurrentMonth(getPeriodMonthKeyForDate(selectedDate, monthStartDay));
+  }
+
   function exportData() {
-    const blob = new Blob([JSON.stringify({ transactions, fixedCosts }, null, 2)], {
+    const blob = new Blob([JSON.stringify({ transactions, fixedCosts, settings }, null, 2)], {
       type: "application/json",
     });
     const url = URL.createObjectURL(blob);
@@ -244,6 +266,8 @@ export function useKakeibo() {
       const parsed = parseStoredData(String(reader.result));
       setTransactions(parsed.transactions);
       setFixedCosts(parsed.fixedCosts);
+      setSettings(parsed.settings);
+      setCurrentMonth(getPeriodMonthKeyForDate(selectedDate, parsed.settings.monthStartDay));
       if (fileInputRef.current) fileInputRef.current.value = "";
       notify("JSONを読み込みました。");
     });
@@ -256,7 +280,7 @@ export function useKakeibo() {
     balance,
     calendarDays,
     cancelEdit,
-    categoryTotals,
+    expenseCategoryTotals,
     currentMonth,
     deleteFixedCost,
     deleteTransaction,
@@ -269,8 +293,11 @@ export function useKakeibo() {
     fixedCosts,
     importData,
     income,
+    incomeCategoryTotals,
     monthTransactions: groupedMonthTransactions,
+    monthStartDay: settings.monthStartDay,
     moveMonth,
+    periodRangeLabel,
     selectDate,
     selectedDate,
     selectedTransactions,
@@ -283,5 +310,6 @@ export function useKakeibo() {
     transactionForm,
     trendData,
     updateTransactionForm,
+    updateMonthStartDay,
   };
 }

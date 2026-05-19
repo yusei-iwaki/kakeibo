@@ -55,7 +55,10 @@ function PageHeader({ kakeibo }: AppShellProps) {
             <button className="icon-button" onClick={() => kakeibo.moveMonth(-1)} type="button" aria-label="前月">
               ‹
             </button>
-            <h1>{titleMap[kakeibo.activeSection]}</h1>
+            <div className="month-title">
+              <h1>{titleMap[kakeibo.activeSection]}</h1>
+              <span>{kakeibo.periodRangeLabel}</span>
+            </div>
             <button className="icon-button" onClick={() => kakeibo.moveMonth(1)} type="button" aria-label="翌月">
               ›
             </button>
@@ -128,9 +131,10 @@ export function AppShell({ kakeibo }: AppShellProps) {
           {kakeibo.activeSection === "charts" ? (
             <ChartsSection
               balance={kakeibo.balance}
-              categoryTotals={kakeibo.categoryTotals}
+              expenseCategoryTotals={kakeibo.expenseCategoryTotals}
               expense={kakeibo.expense}
               income={kakeibo.income}
+              incomeCategoryTotals={kakeibo.incomeCategoryTotals}
               trendData={kakeibo.trendData}
             />
           ) : null}
@@ -141,9 +145,12 @@ export function AppShell({ kakeibo }: AppShellProps) {
               deleteFixedCost={kakeibo.deleteFixedCost}
               fixedCostForm={kakeibo.fixedCostForm}
               fixedCosts={kakeibo.fixedCosts}
+              monthStartDay={kakeibo.monthStartDay}
+              periodRangeLabel={kakeibo.periodRangeLabel}
               setFixedCostForm={kakeibo.setFixedCostForm}
               submitFixedCost={kakeibo.submitFixedCost}
               toggleFixedCost={kakeibo.toggleFixedCost}
+              updateMonthStartDay={kakeibo.updateMonthStartDay}
             />
           ) : null}
         </div>

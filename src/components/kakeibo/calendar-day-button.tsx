@@ -10,7 +10,7 @@ type CalendarDayButtonProps = {
 export function CalendarDayButton({ day, selectedDate, selectDate }: CalendarDayButtonProps) {
   return (
     <button
-      className={`calendar-day ${day.date === selectedDate ? "active" : ""}`}
+      className={`calendar-day ${day.date === selectedDate ? "active" : ""} ${day.muted ? "muted" : ""}`}
       onClick={() => selectDate(day.date)}
       type="button"
     >

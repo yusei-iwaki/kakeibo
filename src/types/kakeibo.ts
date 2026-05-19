@@ -19,7 +19,12 @@ export type FixedCost = {
   enabled: boolean;
 };
 
+export type AppSettings = {
+  monthStartDay: number;
+};
+
 export type StoredData = {
+  settings: AppSettings;
   transactions: Transaction[];
   fixedCosts: FixedCost[];
 };
@@ -38,6 +43,7 @@ export type ToastState = {
 export type CalendarDay = {
   date: string;
   day: number;
+  muted?: boolean;
   income: number;
   expense: number;
 } | null;
