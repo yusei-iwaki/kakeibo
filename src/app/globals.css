@@ -222,10 +222,9 @@ textarea {
 
 .entry-form {
   display: grid;
-  min-height: calc(100vh - 150px);
   align-content: start;
-  gap: 30px;
-  padding-top: 30px;
+  gap: 22px;
+  padding-top: 24px;
 }
 
 .form-status-row {
@@ -331,7 +330,7 @@ textarea {
 }
 
 .plain-list-panel {
-  padding: 0 16px 14px;
+  padding: 6px 16px 14px;
 }
 
 .plain-list-panel h2 {
