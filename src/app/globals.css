@@ -16,7 +16,9 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-sans:
+    ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    sans-serif;
   --font-mono: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
 }
 
@@ -72,8 +74,16 @@ textarea {
   margin: 0 auto;
   overflow: hidden;
   background:
-    radial-gradient(circle at 50% -18%, rgba(255, 255, 255, 0.96), transparent 32%),
-    linear-gradient(180deg, rgba(255, 255, 255, 0.82), rgba(246, 242, 235, 0.95)),
+    radial-gradient(
+      circle at 50% -18%,
+      rgba(255, 255, 255, 0.96),
+      transparent 32%
+    ),
+    linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.82),
+      rgba(246, 242, 235, 0.95)
+    ),
     var(--background);
   box-shadow: 0 18px 54px rgba(61, 49, 33, 0.18);
 }
@@ -188,7 +198,9 @@ textarea {
   font-size: 28px;
   line-height: 1;
   transform: translateY(-50%);
-  transition: transform 110ms ease, background 140ms ease;
+  transition:
+    transform 110ms ease,
+    background 140ms ease;
 }
 
 .icon-button:first-child {
@@ -220,11 +232,17 @@ textarea {
   gap: 10px;
 }
 
+.input-page {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
 .entry-form {
   display: grid;
   align-content: start;
-  gap: 22px;
-  padding-top: 24px;
+  gap: 14px;
+  padding-top: 14px;
 }
 
 .form-status-row {
@@ -243,18 +261,24 @@ textarea {
   border-top: 1px solid var(--line);
   border-bottom: 1px solid var(--line);
   background: rgba(255, 253, 248, 0.84);
-  box-shadow: var(--shadow-hair), 0 5px 18px rgba(55, 44, 31, 0.04);
+  box-shadow:
+    var(--shadow-hair),
+    0 5px 18px rgba(55, 44, 31, 0.04);
 }
 
 .input-row {
   display: grid;
-  min-height: 53px;
+  min-height: 48px;
   grid-template-columns: 92px 1fr auto;
   align-items: center;
   gap: 10px;
   border-bottom: 1px solid var(--line);
   padding: 0 16px;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0));
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.2),
+    rgba(255, 255, 255, 0)
+  );
 }
 
 .input-row:last-child {
@@ -293,11 +317,11 @@ textarea {
 
 .amount-input {
   color: #2f2d2a !important;
-  font-size: 23px !important;
+  font-size: 21px !important;
 }
 
 .save-button {
-  min-height: 44px;
+  min-height: 42px;
   margin: 0 28px;
   border-radius: 12px;
   background: linear-gradient(180deg, #ff8121, var(--orange));
@@ -326,15 +350,18 @@ textarea {
   color: #746d65;
   font-size: 13px;
   font-weight: 800;
-  transition: transform 110ms ease, background 140ms ease;
+  transition:
+    transform 110ms ease,
+    background 140ms ease;
 }
 
 .plain-list-panel {
-  padding: 6px 16px 14px;
+  margin-top: 16px;
+  padding: 0 16px 14px;
 }
 
 .plain-list-panel h2 {
-  margin-bottom: 8px;
+  margin-bottom: 7px;
   color: #716b64;
   font-size: 13px;
   font-weight: 800;
@@ -356,7 +383,9 @@ textarea {
   border-radius: 8px;
   background: rgba(255, 253, 248, 0.9);
   padding: 8px 9px 8px 11px;
-  box-shadow: var(--shadow-hair), 0 4px 14px rgba(48, 40, 30, 0.045);
+  box-shadow:
+    var(--shadow-hair),
+    0 4px 14px rgba(48, 40, 30, 0.045);
 }
 
 .transaction-main {
@@ -399,7 +428,9 @@ textarea {
   color: #c44d35;
   font-size: 12px;
   font-weight: 800;
-  transition: transform 110ms ease, background 140ms ease;
+  transition:
+    transform 110ms ease,
+    background 140ms ease;
 }
 
 .weekday-row {
@@ -451,7 +482,10 @@ textarea {
   padding: 4px;
   color: #7d7770;
   text-align: left;
-  transition: transform 110ms ease, background 140ms ease, box-shadow 140ms ease;
+  transition:
+    transform 110ms ease,
+    background 140ms ease,
+    box-shadow 140ms ease;
 }
 
 .calendar-day.active {
@@ -539,7 +573,11 @@ textarea {
   border: 1px solid rgba(226, 218, 206, 0.92);
   border-radius: 22px 22px 0 0;
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.94), rgba(255, 250, 242, 0.96)),
+    linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.94),
+      rgba(255, 250, 242, 0.96)
+    ),
     var(--paper);
   padding: 8px 14px max(14px, env(safe-area-inset-bottom));
   box-shadow: 0 -18px 44px rgba(45, 35, 24, 0.18);
@@ -586,7 +624,9 @@ textarea {
   color: #665f57;
   font-size: 20px;
   line-height: 1;
-  transition: transform 110ms ease, background 140ms ease;
+  transition:
+    transform 110ms ease,
+    background 140ms ease;
 }
 
 .date-modal-head button:active,
@@ -638,7 +678,9 @@ textarea {
   background: rgba(255, 253, 248, 0.82);
   padding: 8px 10px;
   text-align: left;
-  transition: transform 110ms ease, background 140ms ease;
+  transition:
+    transform 110ms ease,
+    background 140ms ease;
 }
 
 .date-modal-row p {
@@ -676,7 +718,9 @@ textarea {
     0 9px 18px rgba(255, 116, 23, 0.22),
     0 2px 0 rgba(178, 77, 9, 0.16),
     inset 0 1px 0 rgba(255, 255, 255, 0.24);
-  transition: transform 110ms ease, filter 140ms ease;
+  transition:
+    transform 110ms ease,
+    filter 140ms ease;
 }
 
 @keyframes backdrop-in {
@@ -719,7 +763,9 @@ textarea {
   background: rgba(255, 253, 248, 0.82);
   padding: 0 15px;
   text-align: left;
-  transition: transform 110ms ease, background 140ms ease;
+  transition:
+    transform 110ms ease,
+    background 140ms ease;
 }
 
 .ledger-row span {
@@ -744,7 +790,9 @@ textarea {
   border-radius: 14px;
   background: rgba(255, 253, 248, 0.82);
   padding: 4px;
-  box-shadow: var(--shadow-hair), 0 5px 16px rgba(48, 40, 30, 0.05);
+  box-shadow:
+    var(--shadow-hair),
+    0 5px 16px rgba(48, 40, 30, 0.05);
 }
 
 .chart-mode-control button {
@@ -753,7 +801,10 @@ textarea {
   color: #8d867d;
   font-size: 13px;
   font-weight: 800;
-  transition: transform 110ms ease, background 140ms ease, color 140ms ease;
+  transition:
+    transform 110ms ease,
+    background 140ms ease,
+    color 140ms ease;
 }
 
 .chart-mode-control button.active {
@@ -788,7 +839,11 @@ textarea {
   position: absolute;
   inset: -1px;
   border-radius: inherit;
-  background: linear-gradient(145deg, rgba(255, 255, 255, 0.36), rgba(70, 54, 34, 0.08));
+  background: linear-gradient(
+    145deg,
+    rgba(255, 255, 255, 0.36),
+    rgba(70, 54, 34, 0.08)
+  );
   pointer-events: none;
 }
 
@@ -884,7 +939,9 @@ textarea {
   border-radius: 8px;
   background: rgba(255, 253, 248, 0.9);
   padding: 10px;
-  box-shadow: var(--shadow-hair), 0 5px 16px rgba(48, 40, 30, 0.05);
+  box-shadow:
+    var(--shadow-hair),
+    0 5px 16px rgba(48, 40, 30, 0.05);
 }
 
 .mini-summary-grid strong {
@@ -945,10 +1002,16 @@ textarea {
   border: 1px solid rgba(216, 210, 200, 0.9);
   border-radius: 12px;
   background:
-    linear-gradient(145deg, rgba(255, 255, 255, 0.72), rgba(255, 248, 238, 0.78)),
+    linear-gradient(
+      145deg,
+      rgba(255, 255, 255, 0.72),
+      rgba(255, 248, 238, 0.78)
+    ),
     rgba(255, 253, 248, 0.86);
   padding: 12px;
-  box-shadow: var(--shadow-hair), 0 8px 22px rgba(48, 40, 30, 0.055);
+  box-shadow:
+    var(--shadow-hair),
+    0 8px 22px rgba(48, 40, 30, 0.055);
 }
 
 .period-setting-head {
@@ -1000,7 +1063,9 @@ textarea {
   font-size: 18px;
   font-weight: 800;
   box-shadow: inset 0 0 0 1px rgba(216, 210, 200, 0.92);
-  transition: transform 110ms ease, background 140ms ease;
+  transition:
+    transform 110ms ease,
+    background 140ms ease;
 }
 
 .start-day-control button:active,
@@ -1026,7 +1091,10 @@ textarea {
   font-size: 11px;
   font-weight: 800;
   box-shadow: inset 0 0 0 1px rgba(216, 210, 200, 0.72);
-  transition: transform 110ms ease, background 140ms ease, color 140ms ease;
+  transition:
+    transform 110ms ease,
+    background 140ms ease,
+    color 140ms ease;
 }
 
 .quick-start-days button.active {
@@ -1046,7 +1114,9 @@ textarea {
   font-size: 14px;
   font-weight: 700;
   text-align: left;
-  transition: transform 110ms ease, background 140ms ease;
+  transition:
+    transform 110ms ease,
+    background 140ms ease;
 }
 
 .setting-row b {
@@ -1090,7 +1160,9 @@ textarea {
   color: #887565;
   font-size: 12px;
   font-weight: 800;
-  transition: transform 110ms ease, background 140ms ease;
+  transition:
+    transform 110ms ease,
+    background 140ms ease;
 }
 
 .toggle-pill.active {

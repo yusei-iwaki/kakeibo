@@ -16,7 +16,7 @@ type TransactionSectionProps = {
 
 export function TransactionSection(props: TransactionSectionProps) {
   return (
-    <section className="page-stack">
+    <section className="input-page">
       <TransactionForm
         cancelEdit={props.cancelEdit}
         editingTransactionId={props.editingTransactionId}
