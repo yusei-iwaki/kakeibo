@@ -103,6 +103,10 @@ export function useKakeibo() {
 
   function updateTransactionForm(nextForm: Partial<TransactionFormState>) {
     setTransactionForm((form) => ({ ...form, ...nextForm }));
+    if (nextForm.date) {
+      setSelectedDate(nextForm.date);
+      setCurrentMonth(nextForm.date.slice(0, 7));
+    }
   }
 
   function submitTransaction(event: FormEvent<HTMLFormElement>) {
