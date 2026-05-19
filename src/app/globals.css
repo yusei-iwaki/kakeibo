@@ -461,11 +461,6 @@ textarea {
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.28);
 }
 
-.calendar-day.muted:not(.active) {
-  color: #b8b1a8;
-  background: rgba(247, 242, 234, 0.55);
-}
-
 .calendar-day > span:first-child {
   font-size: 11px;
   font-weight: 800;
@@ -525,6 +520,182 @@ textarea {
 .calendar-ledger {
   display: grid;
   gap: 0;
+}
+
+.date-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  background: rgba(43, 35, 27, 0.28);
+  animation: backdrop-in 150ms ease both;
+}
+
+.date-modal-sheet {
+  width: min(430px, 100vw);
+  max-height: min(72vh, 560px);
+  overflow: hidden;
+  border: 1px solid rgba(226, 218, 206, 0.92);
+  border-radius: 22px 22px 0 0;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.94), rgba(255, 250, 242, 0.96)),
+    var(--paper);
+  padding: 8px 14px max(14px, env(safe-area-inset-bottom));
+  box-shadow: 0 -18px 44px rgba(45, 35, 24, 0.18);
+  animation: sheet-in 180ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+.modal-grabber {
+  width: 38px;
+  height: 4px;
+  margin: 2px auto 10px;
+  border-radius: 999px;
+  background: #d6cec3;
+}
+
+.date-modal-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.date-modal-head span,
+.date-modal-summary span,
+.date-modal-row span {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.date-modal-head h2 {
+  margin-top: 2px;
+  color: #3e3932;
+  font-size: 17px;
+  font-weight: 800;
+}
+
+.date-modal-head button {
+  display: grid;
+  width: 32px;
+  min-height: 32px;
+  place-items: center;
+  border-radius: 999px;
+  background: #f1ebe2;
+  color: #665f57;
+  font-size: 20px;
+  line-height: 1;
+  transition: transform 110ms ease, background 140ms ease;
+}
+
+.date-modal-head button:active,
+.date-modal-action:active,
+.date-modal-row:active {
+  transform: translateY(1px) scale(0.97);
+}
+
+.date-modal-summary {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.date-modal-summary > div {
+  border: 1px solid rgba(216, 210, 200, 0.8);
+  border-radius: 10px;
+  background: rgba(255, 253, 248, 0.76);
+  padding: 8px;
+  box-shadow: var(--shadow-hair);
+}
+
+.date-modal-summary strong {
+  display: block;
+  margin-top: 2px;
+  color: #4b453e;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.date-modal-list {
+  display: grid;
+  max-height: 230px;
+  gap: 6px;
+  margin-top: 12px;
+  overflow: auto;
+  padding-right: 1px;
+}
+
+.date-modal-row {
+  display: flex;
+  min-height: 48px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border: 1px solid rgba(216, 210, 200, 0.74);
+  border-radius: 10px;
+  background: rgba(255, 253, 248, 0.82);
+  padding: 8px 10px;
+  text-align: left;
+  transition: transform 110ms ease, background 140ms ease;
+}
+
+.date-modal-row p {
+  color: #48423b;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.date-modal-row strong {
+  flex-shrink: 0;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.date-modal-empty {
+  border: 1px dashed #d8d0c6;
+  border-radius: 10px;
+  padding: 14px;
+  color: #827b73;
+  font-size: 13px;
+  font-weight: 800;
+  text-align: center;
+}
+
+.date-modal-action {
+  width: 100%;
+  min-height: 44px;
+  margin-top: 12px;
+  border-radius: 13px;
+  background: linear-gradient(180deg, #ff8121, var(--orange));
+  color: white;
+  font-size: 14px;
+  font-weight: 800;
+  box-shadow:
+    0 9px 18px rgba(255, 116, 23, 0.22),
+    0 2px 0 rgba(178, 77, 9, 0.16),
+    inset 0 1px 0 rgba(255, 255, 255, 0.24);
+  transition: transform 110ms ease, filter 140ms ease;
+}
+
+@keyframes backdrop-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes sheet-in {
+  from {
+    transform: translateY(18px);
+  }
+  to {
+    transform: translateY(0);
+  }
 }
 
 .date-strip {

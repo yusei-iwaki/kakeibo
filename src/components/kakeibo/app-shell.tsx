@@ -124,6 +124,7 @@ export function AppShell({ kakeibo }: AppShellProps) {
               monthTransactions={kakeibo.monthTransactions}
               selectDate={kakeibo.selectDate}
               selectedDate={kakeibo.selectedDate}
+              setActiveSection={kakeibo.setActiveSection}
               editTransaction={kakeibo.editTransaction}
             />
           ) : null}
