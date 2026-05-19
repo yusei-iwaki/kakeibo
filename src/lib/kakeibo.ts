@@ -117,7 +117,9 @@ export function buildCalendarDays(monthKey: string, transactions: Transaction[])
       expense: sumTransactions(daily, "expense"),
     };
   });
-  return [...blankDays, ...calendarDays];
+  const days = [...blankDays, ...calendarDays];
+  const trailingBlankCount = (7 - (days.length % 7)) % 7;
+  return [...days, ...Array.from({ length: trailingBlankCount }, () => null)];
 }
 
 export function buildCategoryTotals(transactions: Transaction[]): CategoryTotal[] {

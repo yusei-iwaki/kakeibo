@@ -8,7 +8,6 @@ type TransactionSectionProps = {
   deleteTransaction: (id: string) => void;
   editTransaction: (transaction: Transaction) => void;
   editingTransactionId: string | null;
-  selectedDate: string;
   selectedTransactions: Transaction[];
   submitTransaction: (event: FormEvent<HTMLFormElement>) => void;
   transactionForm: TransactionFormState;
@@ -17,11 +16,10 @@ type TransactionSectionProps = {
 
 export function TransactionSection(props: TransactionSectionProps) {
   return (
-    <section className="grid gap-4">
+    <section className="page-stack">
       <TransactionForm
         cancelEdit={props.cancelEdit}
         editingTransactionId={props.editingTransactionId}
-        selectedDate={props.selectedDate}
         submitTransaction={props.submitTransaction}
         transactionForm={props.transactionForm}
         updateTransactionForm={props.updateTransactionForm}

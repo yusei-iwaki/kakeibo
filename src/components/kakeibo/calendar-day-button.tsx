@@ -10,16 +10,14 @@ type CalendarDayButtonProps = {
 export function CalendarDayButton({ day, selectedDate, selectDate }: CalendarDayButtonProps) {
   return (
     <button
-      className={`min-h-16 rounded-xl border p-1.5 text-left transition active:scale-[0.98] ${
-        day.date === selectedDate ? "border-[#c77a3d] bg-[#fff0d7]" : "border-[#eadfcd] bg-white/80"
-      }`}
+      className={`calendar-day ${day.date === selectedDate ? "active" : ""}`}
       onClick={() => selectDate(day.date)}
       type="button"
     >
-      <span className="block text-xs font-bold">{day.day}</span>
-      <span className="mt-1 flex gap-1">
-        {day.income ? <i className="h-1.5 w-1.5 rounded-full bg-[#5c9278]" title={`収入 ${formatCompact(day.income)}`} /> : null}
-        {day.expense ? <i className="h-1.5 w-1.5 rounded-full bg-[#d4825a]" title={`支出 ${formatCompact(day.expense)}`} /> : null}
+      <span>{day.day}</span>
+      <span>
+        {day.expense ? <b>{formatCompact(day.expense)}</b> : null}
+        {day.income ? <i>{formatCompact(day.income)}</i> : null}
       </span>
     </button>
   );

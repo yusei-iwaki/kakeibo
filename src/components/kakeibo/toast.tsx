@@ -14,7 +14,7 @@ export function Toast({ toast }: ToastProps) {
   }[toast.tone];
 
   return (
-    <div className={`fixed inset-x-4 top-4 z-30 rounded-2xl border px-4 py-3 text-sm font-bold shadow-lg ${toneClass}`}>
+    <div className={`toast-message ${toneClass}`}>
       {toast.message}
     </div>
   );

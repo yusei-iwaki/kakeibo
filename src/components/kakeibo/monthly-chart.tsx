@@ -8,8 +8,9 @@ export function MonthlyChart({ data }: MonthlyChartProps) {
   const maxValue = Math.max(1, ...data.flatMap((item) => [item.income, item.expense]));
 
   return (
-    <div className="grid gap-3">
-      <div className="h-56 rounded-2xl bg-white/80 p-3">
+    <div className="monthly-chart-panel">
+      <h2>直近6か月</h2>
+      <div>
         <svg className="h-full w-full" role="img" viewBox="0 0 600 260">
           {data.map((item, index) => {
             const groupX = 24 + index * 94;
@@ -27,9 +28,9 @@ export function MonthlyChart({ data }: MonthlyChartProps) {
           })}
         </svg>
       </div>
-      <div className="flex gap-4 text-sm font-semibold text-[#78685c]">
-        <span className="inline-flex items-center gap-2"><i className="h-3 w-3 rounded-full bg-[#6f8f68]" />収入</span>
-        <span className="inline-flex items-center gap-2"><i className="h-3 w-3 rounded-full bg-[#d4825a]" />支出</span>
+      <div className="chart-legend">
+        <span><i className="income-dot" />収入</span>
+        <span><i className="expense-dot" />支出</span>
       </div>
     </div>
   );

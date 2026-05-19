@@ -57,6 +57,14 @@ export function useKakeibo() {
     () => transactions.filter((transaction) => transaction.date.startsWith(currentMonth)),
     [currentMonth, transactions],
   );
+  const groupedMonthTransactions = useMemo(
+    () =>
+      [...monthTransactions].sort((a, b) => {
+        if (a.date === b.date) return b.id.localeCompare(a.id);
+        return b.date.localeCompare(a.date);
+      }),
+    [monthTransactions],
+  );
   const selectedTransactions = useMemo(
     () =>
       transactions
@@ -120,9 +128,10 @@ export function useKakeibo() {
       notify("明細を追加しました。");
     }
 
-    setSelectedDate(transactionForm.date);
-    setCurrentMonth(transactionForm.date.slice(0, 7));
-    setTransactionForm(emptyTransactionForm(transactionForm.date));
+    const today = todayString();
+    setSelectedDate(today);
+    setCurrentMonth(today.slice(0, 7));
+    setTransactionForm(emptyTransactionForm(today));
   }
 
   function editTransaction(transaction: Transaction) {
@@ -256,6 +265,7 @@ export function useKakeibo() {
     fixedCosts,
     importData,
     income,
+    monthTransactions: groupedMonthTransactions,
     moveMonth,
     selectDate,
     selectedDate,

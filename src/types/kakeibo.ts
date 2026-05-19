@@ -28,7 +28,7 @@ export type TransactionFormState = Omit<Transaction, "id">;
 
 export type FixedCostFormState = Omit<FixedCost, "id">;
 
-export type AppSection = "input" | "calendar" | "charts" | "fixed" | "settings";
+export type AppSection = "input" | "calendar" | "charts" | "settings";
 
 export type ToastState = {
   message: string;
