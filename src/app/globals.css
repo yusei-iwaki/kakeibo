@@ -161,8 +161,19 @@ textarea {
 
 .month-header h1 {
   width: 100%;
-  padding: 0 54px;
   text-align: center;
+}
+
+.month-title {
+  display: grid;
+  justify-items: center;
+  gap: 1px;
+}
+
+.month-title span {
+  color: rgba(255, 255, 255, 0.78);
+  font-size: 10px;
+  font-weight: 800;
 }
 
 .icon-button {
@@ -428,7 +439,7 @@ textarea {
 
 .calendar-day,
 .calendar-blank {
-  min-height: 52px;
+  min-height: 44px;
   border-right: 1px solid var(--line);
   border-bottom: 1px solid var(--line);
   background: rgba(255, 253, 248, 0.66);
@@ -438,7 +449,7 @@ textarea {
   display: grid;
   align-content: start;
   gap: 2px;
-  padding: 5px 4px;
+  padding: 4px;
   color: #7d7770;
   text-align: left;
   transition: transform 110ms ease, background 140ms ease, box-shadow 140ms ease;
@@ -450,15 +461,20 @@ textarea {
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.28);
 }
 
+.calendar-day.muted:not(.active) {
+  color: #b8b1a8;
+  background: rgba(247, 242, 234, 0.55);
+}
+
 .calendar-day > span:first-child {
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 800;
 }
 
 .calendar-day > span:last-child {
   display: grid;
   gap: 2px;
-  font-size: 8px;
+  font-size: 7px;
   font-style: normal;
   line-height: 1.15;
 }
@@ -487,7 +503,7 @@ textarea {
   grid-template-columns: repeat(3, 1fr);
   border-bottom: 1px solid var(--line);
   background: rgba(255, 253, 248, 0.92);
-  padding: 6px 10px;
+  padding: 5px 10px;
   text-align: center;
 }
 
@@ -512,7 +528,7 @@ textarea {
 }
 
 .date-strip {
-  min-height: 22px;
+  min-height: 20px;
   border-top: 0;
   border-bottom: 1px solid #eadfca;
   background: linear-gradient(180deg, #fbf4e5, #f7efdf);
@@ -525,7 +541,7 @@ textarea {
 .ledger-row {
   display: flex;
   width: 100%;
-  min-height: 45px;
+  min-height: 42px;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
@@ -547,19 +563,48 @@ textarea {
 }
 
 .charts-page {
-  padding: 14px 16px 0;
+  padding: 10px 16px 0;
+}
+
+.chart-mode-control {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 4px;
+  border: 1px solid rgba(216, 210, 200, 0.86);
+  border-radius: 14px;
+  background: rgba(255, 253, 248, 0.82);
+  padding: 4px;
+  box-shadow: var(--shadow-hair), 0 5px 16px rgba(48, 40, 30, 0.05);
+}
+
+.chart-mode-control button {
+  min-height: 30px;
+  border-radius: 10px;
+  color: #8d867d;
+  font-size: 13px;
+  font-weight: 800;
+  transition: transform 110ms ease, background 140ms ease, color 140ms ease;
+}
+
+.chart-mode-control button.active {
+  background: #f1ebe2;
+  color: var(--orange);
+}
+
+.chart-mode-control button:active {
+  transform: translateY(1px) scale(0.97);
 }
 
 .donut-wrap {
   display: grid;
-  min-height: 218px;
+  min-height: 174px;
   place-items: center;
 }
 
 .donut-chart {
   position: relative;
   display: grid;
-  width: min(58vw, 220px);
+  width: min(48vw, 176px);
   aspect-ratio: 1;
   place-items: center;
   border-radius: 999px;
@@ -590,7 +635,7 @@ textarea {
 }
 
 .donut-chart strong {
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 800;
 }
 
@@ -619,7 +664,7 @@ textarea {
 
 .category-row {
   display: grid;
-  min-height: 41px;
+  min-height: 37px;
   grid-template-columns: 10px 68px 1fr auto;
   align-items: center;
   gap: 8px;
@@ -689,7 +734,7 @@ textarea {
 }
 
 .monthly-chart-panel > div:first-of-type {
-  height: 132px;
+  height: 112px;
 }
 
 .chart-legend {
@@ -721,7 +766,103 @@ textarea {
 }
 
 .settings-page {
-  padding-top: 18px;
+  padding: 12px 14px 0;
+}
+
+.period-setting-card {
+  display: grid;
+  gap: 11px;
+  border: 1px solid rgba(216, 210, 200, 0.9);
+  border-radius: 12px;
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.72), rgba(255, 248, 238, 0.78)),
+    rgba(255, 253, 248, 0.86);
+  padding: 12px;
+  box-shadow: var(--shadow-hair), 0 8px 22px rgba(48, 40, 30, 0.055);
+}
+
+.period-setting-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.period-setting-head span {
+  display: block;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.period-setting-head strong {
+  display: block;
+  margin-top: 2px;
+  color: #443f39;
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.period-setting-head p {
+  min-width: max-content;
+  border-radius: 999px;
+  background: #f4eadc;
+  padding: 4px 8px;
+  color: #8b6b49;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.start-day-control {
+  display: grid;
+  grid-template-columns: 34px 1fr 34px;
+  align-items: center;
+  gap: 8px;
+}
+
+.start-day-control button {
+  display: grid;
+  min-height: 32px;
+  place-items: center;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.82);
+  color: #706960;
+  font-size: 18px;
+  font-weight: 800;
+  box-shadow: inset 0 0 0 1px rgba(216, 210, 200, 0.92);
+  transition: transform 110ms ease, background 140ms ease;
+}
+
+.start-day-control button:active,
+.quick-start-days button:active {
+  transform: translateY(1px) scale(0.97);
+}
+
+.start-day-control input {
+  accent-color: var(--orange);
+}
+
+.quick-start-days {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 5px;
+}
+
+.quick-start-days button {
+  min-height: 28px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.68);
+  color: #857d73;
+  font-size: 11px;
+  font-weight: 800;
+  box-shadow: inset 0 0 0 1px rgba(216, 210, 200, 0.72);
+  transition: transform 110ms ease, background 140ms ease, color 140ms ease;
+}
+
+.quick-start-days button.active {
+  background: #fff1df;
+  color: var(--orange);
+  box-shadow: inset 0 0 0 1px rgba(255, 116, 23, 0.25);
 }
 
 .setting-row {
@@ -750,6 +891,8 @@ textarea {
   border-top: 1px solid var(--line);
   border-bottom: 1px solid var(--line);
   background: rgba(255, 253, 248, 0.84);
+  margin-right: -14px;
+  margin-left: -14px;
 }
 
 .fixed-form .save-button {
@@ -758,7 +901,7 @@ textarea {
 }
 
 .fixed-cost-list {
-  padding: 0 16px 14px;
+  padding: 0 2px 14px;
 }
 
 .fixed-cost-item > div {
