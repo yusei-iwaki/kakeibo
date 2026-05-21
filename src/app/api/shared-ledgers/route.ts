@@ -13,9 +13,14 @@ export async function POST(request: Request) {
     return Response.json({ error: "DATABASE_URL is not configured." }, { status: 503 });
   }
 
-  const body = await request.json().catch(() => null);
-  const data = parseStoredData(JSON.stringify(body?.data ?? null));
-  const ledger = await createSharedLedger(data, body?.name);
+  try {
+    const body = await request.json().catch(() => null);
+    const data = parseStoredData(JSON.stringify(body?.data ?? null));
+    const ledger = await createSharedLedger(data, body?.name);
 
-  return Response.json({ ledger }, { status: 201 });
+    return Response.json({ ledger }, { status: 201 });
+  } catch (error) {
+    console.error("Failed to create shared ledger", error);
+    return Response.json({ error: "Failed to create shared ledger." }, { status: 500 });
+  }
 }

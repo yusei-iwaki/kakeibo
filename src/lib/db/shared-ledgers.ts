@@ -19,12 +19,22 @@ type SharedLedgerRow = {
 let sqlClient: ReturnType<typeof postgres> | null = null;
 let schemaReady: Promise<void> | null = null;
 
-function getSql() {
-  if (!process.env.DATABASE_URL) {
-    throw new Error("DATABASE_URL is not configured.");
+function getDatabaseUrl() {
+  const value = process.env.DATABASE_URL?.trim().replace(/^['"]|['"]$/g, "") ?? "";
+  if (!value || (!value.startsWith("postgres://") && !value.startsWith("postgresql://"))) {
+    return null;
   }
 
-  sqlClient ??= postgres(process.env.DATABASE_URL, {
+  return value;
+}
+
+function getSql() {
+  const databaseUrl = getDatabaseUrl();
+  if (!databaseUrl) {
+    throw new Error("DATABASE_URL is not configured correctly.");
+  }
+
+  sqlClient ??= postgres(databaseUrl, {
     max: 3,
     prepare: false,
   });
@@ -73,7 +83,7 @@ function toRecord(row: SharedLedgerRow): SharedLedgerRecord {
 }
 
 export function isSharedLedgerConfigured() {
-  return Boolean(process.env.DATABASE_URL);
+  return Boolean(getDatabaseUrl());
 }
 
 export function sanitizeSharedLedgerCode(code: string) {
