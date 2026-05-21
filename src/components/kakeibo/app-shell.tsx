@@ -143,14 +143,19 @@ export function AppShell({ kakeibo }: AppShellProps) {
           {kakeibo.activeSection === "settings" ? (
             <FixedCostSection
               applyFixedCosts={kakeibo.applyFixedCosts}
+              createSharedBook={kakeibo.createSharedBook}
               deleteFixedCost={kakeibo.deleteFixedCost}
               fixedCostForm={kakeibo.fixedCostForm}
               fixedCosts={kakeibo.fixedCosts}
+              joinSharedBook={kakeibo.joinSharedBook}
+              leaveSharedBook={kakeibo.leaveSharedBook}
               monthStartDay={kakeibo.monthStartDay}
               periodRangeLabel={kakeibo.periodRangeLabel}
               setFixedCostForm={kakeibo.setFixedCostForm}
+              sharedLedgerStatus={kakeibo.sharedLedgerStatus}
               submitFixedCost={kakeibo.submitFixedCost}
               toggleFixedCost={kakeibo.toggleFixedCost}
+              updateSharedLedgerJoinCode={kakeibo.updateSharedLedgerJoinCode}
               updateMonthStartDay={kakeibo.updateMonthStartDay}
             />
           ) : null}

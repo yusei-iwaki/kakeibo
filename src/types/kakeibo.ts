@@ -29,6 +29,21 @@ export type StoredData = {
   fixedCosts: FixedCost[];
 };
 
+export type SharedLedger = {
+  code: string;
+  data: StoredData;
+  name: string;
+  updatedAt: string;
+};
+
+export type SharedLedgerStatus = {
+  code: string;
+  configured: boolean;
+  joinCode: string;
+  mode: "local" | "shared";
+  syncState: "idle" | "loading" | "saving" | "error";
+};
+
 export type TransactionFormState = Omit<Transaction, "id">;
 
 export type FixedCostFormState = Omit<FixedCost, "id">;

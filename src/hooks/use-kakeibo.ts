@@ -15,12 +15,27 @@ import {
   getPeriodMonthKeyForDate,
   parseMonthKey,
   parseStoredData,
+  SHARED_LEDGER_CODE_KEY,
   STORAGE_KEY,
   sumTransactions,
   todayString,
   toMonthKey,
 } from "@/lib/kakeibo";
-import type { AppSection, FixedCost, StoredData, ToastState, Transaction, TransactionFormState } from "@/types/kakeibo";
+import {
+  createSharedLedger,
+  fetchSharedLedgerConfig,
+  loadSharedLedger,
+  saveSharedLedger,
+} from "@/lib/shared-ledger-api";
+import type {
+  AppSection,
+  FixedCost,
+  SharedLedgerStatus,
+  StoredData,
+  ToastState,
+  Transaction,
+  TransactionFormState,
+} from "@/types/kakeibo";
 
 export function useKakeibo() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -34,25 +49,113 @@ export function useKakeibo() {
   const [activeSection, setActiveSection] = useState<AppSection>("input");
   const [toast, setToast] = useState<ToastState>(null);
   const [hydrated, setHydrated] = useState(false);
+  const [sharedLedgerStatus, setSharedLedgerStatus] = useState<SharedLedgerStatus>({
+    code: "",
+    configured: false,
+    joinCode: "",
+    mode: "local",
+    syncState: "loading",
+  });
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  function applyStoredData(data: StoredData) {
+    setTransactions(data.transactions);
+    setFixedCosts(data.fixedCosts);
+    setSettings(data.settings);
+    setCurrentMonth(getPeriodMonthKeyForDate(todayString(), data.settings.monthStartDay));
+  }
+
   useEffect(() => {
-    const rawData = localStorage.getItem(STORAGE_KEY);
-    queueMicrotask(() => {
-      const parsed = parseStoredData(rawData);
-      setTransactions(parsed.transactions);
-      setFixedCosts(parsed.fixedCosts);
-      setSettings(parsed.settings);
-      setCurrentMonth(getPeriodMonthKeyForDate(todayString(), parsed.settings.monthStartDay));
-      setHydrated(true);
-    });
+    let cancelled = false;
+
+    async function hydrateData() {
+      const localData = parseStoredData(localStorage.getItem(STORAGE_KEY));
+      const savedCode = localStorage.getItem(SHARED_LEDGER_CODE_KEY) ?? "";
+
+      try {
+        const config = await fetchSharedLedgerConfig();
+        if (cancelled) return;
+
+        if (savedCode && config.configured) {
+          setSharedLedgerStatus((status) => ({
+            ...status,
+            code: savedCode,
+            configured: true,
+            joinCode: savedCode,
+            mode: "shared",
+            syncState: "loading",
+          }));
+          const { ledger } = await loadSharedLedger(savedCode);
+          if (cancelled) return;
+          applyStoredData(ledger.data);
+          setSharedLedgerStatus({
+            code: ledger.code,
+            configured: true,
+            joinCode: ledger.code,
+            mode: "shared",
+            syncState: "idle",
+          });
+        } else {
+          applyStoredData(localData);
+          setSharedLedgerStatus({
+            code: "",
+            configured: config.configured,
+            joinCode: savedCode,
+            mode: "local",
+            syncState: "idle",
+          });
+        }
+      } catch {
+        if (cancelled) return;
+        applyStoredData(localData);
+        setSharedLedgerStatus({
+          code: "",
+          configured: false,
+          joinCode: savedCode,
+          mode: "local",
+          syncState: "idle",
+        });
+      } finally {
+        if (!cancelled) setHydrated(true);
+      }
+    }
+
+    hydrateData();
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   useEffect(() => {
     if (!hydrated) return;
     const data: StoredData = { transactions, fixedCosts, settings };
+
+    if (sharedLedgerStatus.mode !== "shared" || !sharedLedgerStatus.code) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      return;
+    }
+
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-  }, [fixedCosts, hydrated, settings, transactions]);
+    const timer = window.setTimeout(() => {
+      setSharedLedgerStatus((status) => ({ ...status, syncState: "saving" }));
+      saveSharedLedger(sharedLedgerStatus.code, data)
+        .then(({ ledger }) => {
+          setSharedLedgerStatus((status) => ({
+            ...status,
+            code: ledger.code,
+            joinCode: ledger.code,
+            syncState: "idle",
+          }));
+        })
+        .catch(() => {
+          setSharedLedgerStatus((status) => ({ ...status, syncState: "error" }));
+          notify("共有家計簿への保存に失敗しました。", "warning");
+        });
+    }, 450);
+
+    return () => window.clearTimeout(timer);
+  }, [fixedCosts, hydrated, settings, sharedLedgerStatus.code, sharedLedgerStatus.mode, transactions]);
 
   useEffect(() => {
     if (!toast) return;
@@ -93,6 +196,76 @@ export function useKakeibo() {
 
   function notify(message: string, tone: NonNullable<ToastState>["tone"] = "success") {
     setToast({ message, tone });
+  }
+
+  function updateSharedLedgerJoinCode(joinCode: string) {
+    setSharedLedgerStatus((status) => ({ ...status, joinCode: joinCode.toUpperCase() }));
+  }
+
+  async function createSharedBook() {
+    if (!sharedLedgerStatus.configured) {
+      notify("DATABASE_URLを設定すると共有を開始できます。", "warning");
+      return;
+    }
+
+    setSharedLedgerStatus((status) => ({ ...status, syncState: "loading" }));
+    try {
+      const data: StoredData = { transactions, fixedCosts, settings };
+      const { ledger } = await createSharedLedger(data);
+      localStorage.setItem(SHARED_LEDGER_CODE_KEY, ledger.code);
+      applyStoredData(ledger.data);
+      setSharedLedgerStatus({
+        code: ledger.code,
+        configured: true,
+        joinCode: ledger.code,
+        mode: "shared",
+        syncState: "idle",
+      });
+      notify(`共有コード ${ledger.code} を作成しました。`);
+    } catch {
+      setSharedLedgerStatus((status) => ({ ...status, syncState: "error" }));
+      notify("共有家計簿を作成できませんでした。", "warning");
+    }
+  }
+
+  async function joinSharedBook() {
+    const code = sharedLedgerStatus.joinCode.trim().toUpperCase();
+    if (!code) {
+      notify("共有コードを入力してください。", "warning");
+      return;
+    }
+
+    setSharedLedgerStatus((status) => ({ ...status, syncState: "loading" }));
+    try {
+      const { ledger } = await loadSharedLedger(code);
+      localStorage.setItem(SHARED_LEDGER_CODE_KEY, ledger.code);
+      applyStoredData(ledger.data);
+      setSharedLedgerStatus({
+        code: ledger.code,
+        configured: true,
+        joinCode: ledger.code,
+        mode: "shared",
+        syncState: "idle",
+      });
+      notify("共有家計簿に参加しました。");
+    } catch {
+      setSharedLedgerStatus((status) => ({ ...status, syncState: "error" }));
+      notify("共有コードが見つかりませんでした。", "warning");
+    }
+  }
+
+  function leaveSharedBook() {
+    const data: StoredData = { transactions, fixedCosts, settings };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    localStorage.removeItem(SHARED_LEDGER_CODE_KEY);
+    setSharedLedgerStatus((status) => ({
+      ...status,
+      code: "",
+      joinCode: "",
+      mode: "local",
+      syncState: "idle",
+    }));
+    notify("この端末をローカル保存に戻しました。", "info");
   }
 
   function setSection(section: AppSection) {
@@ -303,12 +476,17 @@ export function useKakeibo() {
     selectedTransactions,
     setActiveSection: setSection,
     setFixedCostForm,
+    createSharedBook,
     submitFixedCost,
     submitTransaction,
+    joinSharedBook,
+    leaveSharedBook,
+    sharedLedgerStatus,
     toast,
     toggleFixedCost,
     transactionForm,
     trendData,
+    updateSharedLedgerJoinCode,
     updateTransactionForm,
     updateMonthStartDay,
   };

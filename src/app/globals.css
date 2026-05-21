@@ -1125,6 +1125,137 @@ textarea {
   font-weight: 400;
 }
 
+.share-panel {
+  display: grid;
+  gap: 10px;
+  border: 1px solid rgba(216, 210, 200, 0.9);
+  border-radius: 12px;
+  background: rgba(255, 253, 248, 0.88);
+  padding: 12px;
+  box-shadow:
+    var(--shadow-hair),
+    0 8px 20px rgba(48, 40, 30, 0.05);
+}
+
+.share-panel-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.share-panel-head span,
+.share-code-box span {
+  display: block;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.share-panel-head strong {
+  display: block;
+  margin-top: 2px;
+  color: #443f39;
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.share-panel-head p {
+  min-width: max-content;
+  border-radius: 999px;
+  background: #edf3ea;
+  padding: 4px 8px;
+  color: #4e724b;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.share-panel-copy,
+.share-warning {
+  color: #786f65;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.6;
+}
+
+.share-warning {
+  border-radius: 8px;
+  background: #fff4df;
+  padding: 8px;
+  color: #9b6527;
+}
+
+.share-code-box {
+  display: flex;
+  min-height: 46px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border-radius: 10px;
+  background: #f6efe5;
+  padding: 8px 10px;
+}
+
+.share-code-box strong {
+  color: #3e3932;
+  font-family: var(--font-mono);
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+}
+
+.share-actions {
+  display: grid;
+  gap: 8px;
+}
+
+.share-actions .save-button {
+  margin: 0;
+}
+
+.share-join-row {
+  display: grid;
+  grid-template-columns: 1fr 70px;
+  gap: 8px;
+}
+
+.share-join-row input {
+  min-height: 42px;
+  border: 1px solid rgba(216, 210, 200, 0.94);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.72);
+  padding: 0 11px;
+  color: #48443e;
+  font-family: var(--font-mono);
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  outline: 0;
+}
+
+.share-join-row button,
+.share-leave-button {
+  min-height: 42px;
+  border-radius: 10px;
+  background: #f1ebe2;
+  color: #6b6259;
+  font-size: 13px;
+  font-weight: 800;
+  transition:
+    transform 110ms ease,
+    background 140ms ease;
+}
+
+.share-leave-button {
+  background: #fff2ee;
+  color: #c44d35;
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.52;
+}
+
 .fixed-form {
   display: grid;
   gap: 0;

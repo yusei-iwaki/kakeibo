@@ -11,6 +11,7 @@ import type {
 } from "@/types/kakeibo";
 
 export const STORAGE_KEY = "kakeibo-data-v1";
+export const SHARED_LEDGER_CODE_KEY = "kakeibo-shared-ledger-code-v1";
 export const defaultSettings: AppSettings = {
   monthStartDay: 1,
 };
