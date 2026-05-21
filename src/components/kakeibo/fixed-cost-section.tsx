@@ -13,6 +13,7 @@ type FixedCostSectionProps = {
   leaveSharedBook: () => void;
   monthStartDay: number;
   periodRangeLabel: string;
+  refreshSharedBook: () => void;
   setFixedCostForm: Dispatch<SetStateAction<FixedCostFormState>>;
   sharedLedgerStatus: SharedLedgerStatus;
   submitFixedCost: (event: FormEvent<HTMLFormElement>) => void;
@@ -31,6 +32,7 @@ export function FixedCostSection({
   leaveSharedBook,
   monthStartDay,
   periodRangeLabel,
+  refreshSharedBook,
   setFixedCostForm,
   sharedLedgerStatus,
   submitFixedCost,
@@ -38,7 +40,17 @@ export function FixedCostSection({
   updateSharedLedgerJoinCode,
   updateMonthStartDay,
 }: FixedCostSectionProps) {
-  const isBusy = sharedLedgerStatus.syncState === "loading" || sharedLedgerStatus.syncState === "saving";
+  const isBusy =
+    sharedLedgerStatus.syncState === "loading" ||
+    sharedLedgerStatus.syncState === "refreshing" ||
+    sharedLedgerStatus.syncState === "saving";
+  const syncLabel = sharedLedgerStatus.syncState === "saving"
+    ? "保存中"
+    : sharedLedgerStatus.syncState === "refreshing"
+      ? "更新中"
+      : sharedLedgerStatus.syncState === "error"
+        ? "要確認"
+        : "同期OK";
 
   return (
     <section className="settings-page">
@@ -93,7 +105,7 @@ export function FixedCostSection({
             <span>共有家計簿</span>
             <strong>{sharedLedgerStatus.mode === "shared" ? "共有中" : "ローカル保存"}</strong>
           </div>
-          <p>{sharedLedgerStatus.syncState === "saving" ? "保存中" : sharedLedgerStatus.syncState === "error" ? "要確認" : "同期OK"}</p>
+          <p>{syncLabel}</p>
         </div>
 
         {sharedLedgerStatus.mode === "shared" ? (
@@ -108,6 +120,11 @@ export function FixedCostSection({
         )}
 
         <div className="share-actions">
+          {sharedLedgerStatus.mode === "shared" ? (
+            <button className="share-refresh-button" disabled={isBusy} onClick={refreshSharedBook} type="button">
+              最新に更新
+            </button>
+          ) : null}
           <button
             className="save-button"
             disabled={isBusy || sharedLedgerStatus.mode === "shared"}

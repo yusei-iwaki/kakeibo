@@ -1,6 +1,6 @@
 "use client";
 
-import { ChangeEvent, FormEvent, useEffect, useMemo, useRef, useState } from "react";
+import { ChangeEvent, FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   buildCalendarDays,
   buildCategoryTotals,
@@ -53,16 +53,20 @@ export function useKakeibo() {
     code: "",
     configured: false,
     joinCode: "",
+    lastSyncedAt: "",
     mode: "local",
     syncState: "loading",
   });
+  const skipNextSharedSaveRef = useRef(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  function applyStoredData(data: StoredData) {
+  function applyStoredData(data: StoredData, options: { resetMonthToToday?: boolean } = {}) {
     setTransactions(data.transactions);
     setFixedCosts(data.fixedCosts);
     setSettings(data.settings);
-    setCurrentMonth(getPeriodMonthKeyForDate(todayString(), data.settings.monthStartDay));
+    if (options.resetMonthToToday ?? true) {
+      setCurrentMonth(getPeriodMonthKeyForDate(todayString(), data.settings.monthStartDay));
+    }
   }
 
   useEffect(() => {
@@ -82,6 +86,7 @@ export function useKakeibo() {
             code: savedCode,
             configured: true,
             joinCode: savedCode,
+            lastSyncedAt: status.lastSyncedAt,
             mode: "shared",
             syncState: "loading",
           }));
@@ -92,6 +97,7 @@ export function useKakeibo() {
             code: ledger.code,
             configured: true,
             joinCode: ledger.code,
+            lastSyncedAt: ledger.updatedAt,
             mode: "shared",
             syncState: "idle",
           });
@@ -101,6 +107,7 @@ export function useKakeibo() {
             code: "",
             configured: config.configured,
             joinCode: savedCode,
+            lastSyncedAt: "",
             mode: "local",
             syncState: "idle",
           });
@@ -112,6 +119,7 @@ export function useKakeibo() {
           code: "",
           configured: false,
           joinCode: savedCode,
+          lastSyncedAt: "",
           mode: "local",
           syncState: "idle",
         });
@@ -137,6 +145,11 @@ export function useKakeibo() {
     }
 
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    if (skipNextSharedSaveRef.current) {
+      skipNextSharedSaveRef.current = false;
+      return;
+    }
+
     const timer = window.setTimeout(() => {
       setSharedLedgerStatus((status) => ({ ...status, syncState: "saving" }));
       saveSharedLedger(sharedLedgerStatus.code, data)
@@ -145,6 +158,7 @@ export function useKakeibo() {
             ...status,
             code: ledger.code,
             joinCode: ledger.code,
+            lastSyncedAt: ledger.updatedAt,
             syncState: "idle",
           }));
         })
@@ -156,6 +170,64 @@ export function useKakeibo() {
 
     return () => window.clearTimeout(timer);
   }, [fixedCosts, hydrated, settings, sharedLedgerStatus.code, sharedLedgerStatus.mode, transactions]);
+
+  const refreshSharedBook = useCallback(
+    async (silent = false) => {
+      if (sharedLedgerStatus.mode !== "shared" || !sharedLedgerStatus.code) {
+        if (!silent) setToast({ message: "共有家計簿に参加していません。", tone: "warning" });
+        return;
+      }
+
+      if (sharedLedgerStatus.syncState === "loading" || sharedLedgerStatus.syncState === "saving") return;
+
+      setSharedLedgerStatus((status) => ({ ...status, syncState: "refreshing" }));
+      try {
+        const { ledger } = await loadSharedLedger(sharedLedgerStatus.code);
+        skipNextSharedSaveRef.current = true;
+        setTransactions(ledger.data.transactions);
+        setFixedCosts(ledger.data.fixedCosts);
+        setSettings(ledger.data.settings);
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(ledger.data));
+        setSharedLedgerStatus((status) => ({
+          ...status,
+          code: ledger.code,
+          joinCode: ledger.code,
+          lastSyncedAt: ledger.updatedAt,
+          syncState: "idle",
+        }));
+        if (!silent) setToast({ message: "共有家計簿を最新にしました。", tone: "info" });
+      } catch {
+        setSharedLedgerStatus((status) => ({ ...status, syncState: "error" }));
+        if (!silent) setToast({ message: "共有家計簿を更新できませんでした。", tone: "warning" });
+      }
+    },
+    [sharedLedgerStatus.code, sharedLedgerStatus.mode, sharedLedgerStatus.syncState],
+  );
+
+  useEffect(() => {
+    if (!hydrated || sharedLedgerStatus.mode !== "shared" || !sharedLedgerStatus.code) return;
+
+    const interval = window.setInterval(() => {
+      if (document.visibilityState === "visible") {
+        refreshSharedBook(true);
+      }
+    }, 30000);
+
+    function refreshOnVisible() {
+      if (document.visibilityState === "visible") {
+        refreshSharedBook(true);
+      }
+    }
+
+    window.addEventListener("focus", refreshOnVisible);
+    document.addEventListener("visibilitychange", refreshOnVisible);
+
+    return () => {
+      window.clearInterval(interval);
+      window.removeEventListener("focus", refreshOnVisible);
+      document.removeEventListener("visibilitychange", refreshOnVisible);
+    };
+  }, [hydrated, refreshSharedBook, sharedLedgerStatus.code, sharedLedgerStatus.mode, sharedLedgerStatus.syncState]);
 
   useEffect(() => {
     if (!toast) return;
@@ -218,6 +290,7 @@ export function useKakeibo() {
         code: ledger.code,
         configured: true,
         joinCode: ledger.code,
+        lastSyncedAt: ledger.updatedAt,
         mode: "shared",
         syncState: "idle",
       });
@@ -244,6 +317,7 @@ export function useKakeibo() {
         code: ledger.code,
         configured: true,
         joinCode: ledger.code,
+        lastSyncedAt: ledger.updatedAt,
         mode: "shared",
         syncState: "idle",
       });
@@ -262,6 +336,7 @@ export function useKakeibo() {
       ...status,
       code: "",
       joinCode: "",
+      lastSyncedAt: "",
       mode: "local",
       syncState: "idle",
     }));
@@ -477,6 +552,7 @@ export function useKakeibo() {
     setActiveSection: setSection,
     setFixedCostForm,
     createSharedBook,
+    refreshSharedBook,
     submitFixedCost,
     submitTransaction,
     joinSharedBook,

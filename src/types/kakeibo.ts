@@ -40,8 +40,9 @@ export type SharedLedgerStatus = {
   code: string;
   configured: boolean;
   joinCode: string;
+  lastSyncedAt: string;
   mode: "local" | "shared";
-  syncState: "idle" | "loading" | "saving" | "error";
+  syncState: "idle" | "loading" | "refreshing" | "saving" | "error";
 };
 
 export type TransactionFormState = Omit<Transaction, "id">;

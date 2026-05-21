@@ -1234,6 +1234,7 @@ textarea {
 }
 
 .share-join-row button,
+.share-refresh-button,
 .share-leave-button {
   min-height: 42px;
   border-radius: 10px;
@@ -1244,6 +1245,11 @@ textarea {
   transition:
     transform 110ms ease,
     background 140ms ease;
+}
+
+.share-refresh-button {
+  background: #edf3ea;
+  color: #4e724b;
 }
 
 .share-leave-button {

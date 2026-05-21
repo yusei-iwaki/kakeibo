@@ -151,6 +151,7 @@ export function AppShell({ kakeibo }: AppShellProps) {
               leaveSharedBook={kakeibo.leaveSharedBook}
               monthStartDay={kakeibo.monthStartDay}
               periodRangeLabel={kakeibo.periodRangeLabel}
+              refreshSharedBook={kakeibo.refreshSharedBook}
               setFixedCostForm={kakeibo.setFixedCostForm}
               sharedLedgerStatus={kakeibo.sharedLedgerStatus}
               submitFixedCost={kakeibo.submitFixedCost}
