@@ -25,6 +25,14 @@ function getDatabaseUrl() {
     return null;
   }
 
+  try {
+    const url = new URL(value);
+    decodeURIComponent(url.username);
+    decodeURIComponent(url.password);
+  } catch {
+    throw new Error("DATABASE_URL is malformed. URL-encode special characters in the username or password.");
+  }
+
   return value;
 }
 
@@ -83,7 +91,12 @@ function toRecord(row: SharedLedgerRow): SharedLedgerRecord {
 }
 
 export function isSharedLedgerConfigured() {
-  return Boolean(getDatabaseUrl());
+  try {
+    return Boolean(getDatabaseUrl());
+  } catch (error) {
+    console.error("Invalid DATABASE_URL", error);
+    return false;
+  }
 }
 
 export function sanitizeSharedLedgerCode(code: string) {
