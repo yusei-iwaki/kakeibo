@@ -43,6 +43,14 @@ npm run build
 
 ## デプロイ
 
-共有DBを使うため、GitHub Pages のような静的ホスティングではなく、Vercel や Node.js サーバーへデプロイしてください。
+本番は Vercel にデプロイします。GitHub リポジトリと Vercel プロジェクトを接続し、Vercel の Environment Variables に本番用 Supabase Postgres の `DATABASE_URL` を設定してください。
 
-PWA としてホーム画面へ追加するには、デプロイ先を HTTPS で配信してください。デプロイ先の環境変数にも `DATABASE_URL` を設定します。
+ローカル開発では `.env.local` に開発用DBの `DATABASE_URL` を入れ、本番では Vercel 側に本番用DBの `DATABASE_URL` を入れます。共有コードと家計簿データは接続先DBごとに分かれます。
+
+Vercel の標準設定で動きます。
+
+```bash
+npm run build
+```
+
+PWA としてホーム画面へ追加するには、Vercel の HTTPS 配信URLを使ってください。
