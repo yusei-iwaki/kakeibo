@@ -5,14 +5,19 @@ import type { StoredData } from "@/types/kakeibo";
 type SharedLedgerRecord = {
   code: string;
   data: StoredData;
+  editCode?: string;
   name: string;
+  permission: "viewer" | "editor";
+  readCode?: string;
   updatedAt: string;
 };
 
 type SharedLedgerRow = {
   code: string;
   data: StoredData;
+  edit_code: string | null;
   name: string;
+  read_code: string | null;
   updated_at: Date;
 };
 
@@ -53,15 +58,21 @@ function getSql() {
 async function ensureSchema() {
   if (!schemaReady) {
     const sql = getSql();
-    schemaReady = sql`
-      CREATE TABLE IF NOT EXISTS shared_ledgers (
-        code text PRIMARY KEY,
-        name text NOT NULL DEFAULT '共有家計簿',
-        data jsonb NOT NULL,
-        created_at timestamptz NOT NULL DEFAULT now(),
-        updated_at timestamptz NOT NULL DEFAULT now()
-      )
-    `.then(() => undefined);
+    schemaReady = (async () => {
+      await sql`
+        CREATE TABLE IF NOT EXISTS shared_ledgers (
+          code text PRIMARY KEY,
+          name text NOT NULL DEFAULT '共有家計簿',
+          data jsonb NOT NULL,
+          created_at timestamptz NOT NULL DEFAULT now(),
+          updated_at timestamptz NOT NULL DEFAULT now()
+        )
+      `;
+      await sql`ALTER TABLE shared_ledgers ADD COLUMN IF NOT EXISTS read_code text`;
+      await sql`ALTER TABLE shared_ledgers ADD COLUMN IF NOT EXISTS edit_code text`;
+      await sql`CREATE UNIQUE INDEX IF NOT EXISTS shared_ledgers_read_code_idx ON shared_ledgers (read_code)`;
+      await sql`CREATE UNIQUE INDEX IF NOT EXISTS shared_ledgers_edit_code_idx ON shared_ledgers (edit_code)`;
+    })();
   }
 
   return schemaReady;
@@ -81,11 +92,16 @@ function normalizeStoredData(data: unknown): StoredData {
   return parseStoredData(JSON.stringify(data ?? null));
 }
 
-function toRecord(row: SharedLedgerRow): SharedLedgerRecord {
+function toRecord(row: SharedLedgerRow, permission: "viewer" | "editor"): SharedLedgerRecord {
+  const readCode = row.read_code ?? row.code;
+  const editCode = row.edit_code ?? row.code;
   return {
-    code: row.code,
+    code: permission === "editor" ? editCode : readCode,
     data: normalizeStoredData(row.data),
+    editCode: permission === "editor" ? editCode : undefined,
     name: row.name,
+    permission,
+    readCode,
     updatedAt: row.updated_at.toISOString(),
   };
 }
@@ -109,15 +125,16 @@ export async function createSharedLedger(data: StoredData, name = "共有家計�
   const normalizedData = normalizeStoredData(data);
 
   for (let attempt = 0; attempt < 5; attempt += 1) {
-    const code = createLedgerCode();
+    const readCode = createLedgerCode();
+    const editCode = createLedgerCode();
     const rows = await sql<SharedLedgerRow[]>`
-      INSERT INTO shared_ledgers (code, name, data)
-      VALUES (${code}, ${name.trim() || "共有家計簿"}, ${sql.json(normalizedData)})
-      ON CONFLICT (code) DO NOTHING
-      RETURNING code, name, data, updated_at
+      INSERT INTO shared_ledgers (code, read_code, edit_code, name, data)
+      VALUES (${editCode}, ${readCode}, ${editCode}, ${name.trim() || "共有家計簿"}, ${sql.json(normalizedData)})
+      ON CONFLICT DO NOTHING
+      RETURNING code, read_code, edit_code, name, data, updated_at
     `;
 
-    if (rows[0]) return toRecord(rows[0]);
+    if (rows[0]) return toRecord(rows[0], "editor");
   }
 
   throw new Error("Could not create a unique shared ledger code.");
@@ -130,13 +147,17 @@ export async function getSharedLedger(code: string) {
   if (!normalizedCode) return null;
 
   const rows = await sql<SharedLedgerRow[]>`
-    SELECT code, name, data, updated_at
+    SELECT code, read_code, edit_code, name, data, updated_at
     FROM shared_ledgers
     WHERE code = ${normalizedCode}
+      OR read_code = ${normalizedCode}
+      OR edit_code = ${normalizedCode}
     LIMIT 1
   `;
 
-  return rows[0] ? toRecord(rows[0]) : null;
+  if (!rows[0]) return null;
+  const permission = [rows[0].code, rows[0].edit_code].includes(normalizedCode) ? "editor" : "viewer";
+  return toRecord(rows[0], permission);
 }
 
 export async function updateSharedLedger(code: string, data: StoredData) {
@@ -149,8 +170,9 @@ export async function updateSharedLedger(code: string, data: StoredData) {
     UPDATE shared_ledgers
     SET data = ${sql.json(normalizeStoredData(data))}, updated_at = now()
     WHERE code = ${normalizedCode}
-    RETURNING code, name, data, updated_at
+      OR edit_code = ${normalizedCode}
+    RETURNING code, read_code, edit_code, name, data, updated_at
   `;
 
-  return rows[0] ? toRecord(rows[0]) : null;
+  return rows[0] ? toRecord(rows[0], "editor") : null;
 }

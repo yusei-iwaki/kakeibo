@@ -2,6 +2,7 @@ import type {
   AppSettings,
   CalendarDay,
   CategoryTotal,
+  FixedCost,
   FixedCostFormState,
   StoredData,
   Transaction,
@@ -24,6 +25,66 @@ const yenFormatter = new Intl.NumberFormat("ja-JP", {
   currency: "JPY",
   maximumFractionDigits: 0,
 });
+const MAX_TRANSACTIONS = 2000;
+const MAX_FIXED_COSTS = 200;
+const MAX_TEXT_LENGTH = 80;
+const MAX_AMOUNT = 99_999_999;
+
+function clampText(value: unknown) {
+  return typeof value === "string" ? value.trim().slice(0, MAX_TEXT_LENGTH) : "";
+}
+
+function clampAmount(value: unknown) {
+  const amount = Math.round(Number(value));
+  if (!Number.isFinite(amount)) return 0;
+  return Math.min(Math.max(amount, 0), MAX_AMOUNT);
+}
+
+function normalizeDateKey(value: unknown) {
+  if (typeof value !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return todayString();
+  const parsed = parseDateKey(value);
+  if (Number.isNaN(parsed.getTime()) || toDateKey(parsed) !== value) return todayString();
+  return value;
+}
+
+function normalizeTransaction(value: unknown): Transaction | null {
+  if (!value || typeof value !== "object") return null;
+  const item = value as Partial<Transaction>;
+  const type: TransactionType = item.type === "income" ? "income" : "expense";
+  const categories = type === "income" ? incomeCategories : expenseCategories;
+  const category = categories.includes(clampText(item.category)) ? clampText(item.category) : categories[0];
+  return {
+    id: clampText(item.id) || createId(),
+    date: normalizeDateKey(item.date),
+    type,
+    category,
+    amount: clampAmount(item.amount),
+    memo: clampText(item.memo),
+    fixedCostId: clampText(item.fixedCostId) || undefined,
+  };
+}
+
+function normalizeFixedCost(value: unknown): FixedCost | null {
+  if (!value || typeof value !== "object") return null;
+  const item = value as Partial<FixedCost>;
+  const category = expenseCategories.includes(clampText(item.category)) ? clampText(item.category) : "住居";
+  return {
+    id: clampText(item.id) || createId(),
+    name: clampText(item.name),
+    amount: clampAmount(item.amount),
+    category,
+    day: clampDay(toMonthKey(new Date()), Number(item.day) || 1),
+    enabled: item.enabled !== false,
+  };
+}
+
+function isTransaction(value: Transaction | null): value is Transaction {
+  return Boolean(value);
+}
+
+function isFixedCost(value: FixedCost | null): value is FixedCost {
+  return Boolean(value);
+}
 
 export function createId() {
   return globalThis.crypto?.randomUUID?.() ?? `${Date.now()}-${Math.random().toString(16).slice(2)}`;
@@ -151,8 +212,12 @@ export function parseStoredData(rawData: string | null): StoredData {
         ...(parsed.settings ?? {}),
         monthStartDay: clampMonthStartDay(parsed.settings?.monthStartDay ?? defaultSettings.monthStartDay),
       },
-      transactions: Array.isArray(parsed.transactions) ? parsed.transactions : [],
-      fixedCosts: Array.isArray(parsed.fixedCosts) ? parsed.fixedCosts : [],
+      transactions: Array.isArray(parsed.transactions)
+        ? parsed.transactions.slice(0, MAX_TRANSACTIONS).map(normalizeTransaction).filter(isTransaction)
+        : [],
+      fixedCosts: Array.isArray(parsed.fixedCosts)
+        ? parsed.fixedCosts.slice(0, MAX_FIXED_COSTS).map(normalizeFixedCost).filter(isFixedCost)
+        : [],
     };
   } catch {
     return { settings: defaultSettings, transactions: [], fixedCosts: [] };

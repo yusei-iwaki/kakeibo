@@ -52,9 +52,12 @@ export function useKakeibo() {
   const [sharedLedgerStatus, setSharedLedgerStatus] = useState<SharedLedgerStatus>({
     code: "",
     configured: false,
+    editCode: "",
     joinCode: "",
     lastSyncedAt: "",
     mode: "local",
+    permission: "editor",
+    readCode: "",
     syncState: "loading",
   });
   const skipNextSharedSaveRef = useRef(false);
@@ -85,9 +88,12 @@ export function useKakeibo() {
             ...status,
             code: savedCode,
             configured: true,
+            editCode: "",
             joinCode: savedCode,
             lastSyncedAt: status.lastSyncedAt,
             mode: "shared",
+            permission: "viewer",
+            readCode: "",
             syncState: "loading",
           }));
           const { ledger } = await loadSharedLedger(savedCode);
@@ -96,9 +102,12 @@ export function useKakeibo() {
           setSharedLedgerStatus({
             code: ledger.code,
             configured: true,
+            editCode: ledger.editCode ?? "",
             joinCode: ledger.code,
             lastSyncedAt: ledger.updatedAt,
             mode: "shared",
+            permission: ledger.permission,
+            readCode: ledger.readCode ?? ledger.code,
             syncState: "idle",
           });
         } else {
@@ -106,9 +115,12 @@ export function useKakeibo() {
           setSharedLedgerStatus({
             code: "",
             configured: config.configured,
+            editCode: "",
             joinCode: savedCode,
             lastSyncedAt: "",
             mode: "local",
+            permission: "editor",
+            readCode: "",
             syncState: "idle",
           });
         }
@@ -118,9 +130,12 @@ export function useKakeibo() {
         setSharedLedgerStatus({
           code: "",
           configured: false,
+          editCode: "",
           joinCode: savedCode,
           lastSyncedAt: "",
           mode: "local",
+          permission: "editor",
+          readCode: "",
           syncState: "idle",
         });
       } finally {
@@ -139,7 +154,11 @@ export function useKakeibo() {
     if (!hydrated) return;
     const data: StoredData = { transactions, fixedCosts, settings };
 
-    if (sharedLedgerStatus.mode !== "shared" || !sharedLedgerStatus.code) {
+    if (
+      sharedLedgerStatus.mode !== "shared" ||
+      !sharedLedgerStatus.code ||
+      sharedLedgerStatus.permission !== "editor"
+    ) {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
       return;
     }
@@ -157,8 +176,11 @@ export function useKakeibo() {
           setSharedLedgerStatus((status) => ({
             ...status,
             code: ledger.code,
+            editCode: ledger.editCode ?? status.editCode,
             joinCode: ledger.code,
             lastSyncedAt: ledger.updatedAt,
+            permission: ledger.permission,
+            readCode: ledger.readCode ?? status.readCode,
             syncState: "idle",
           }));
         })
@@ -169,7 +191,15 @@ export function useKakeibo() {
     }, 450);
 
     return () => window.clearTimeout(timer);
-  }, [fixedCosts, hydrated, settings, sharedLedgerStatus.code, sharedLedgerStatus.mode, transactions]);
+  }, [
+    fixedCosts,
+    hydrated,
+    settings,
+    sharedLedgerStatus.code,
+    sharedLedgerStatus.mode,
+    sharedLedgerStatus.permission,
+    transactions,
+  ]);
 
   const refreshSharedBook = useCallback(
     async (silent = false) => {
@@ -191,8 +221,11 @@ export function useKakeibo() {
         setSharedLedgerStatus((status) => ({
           ...status,
           code: ledger.code,
+          editCode: ledger.editCode ?? status.editCode,
           joinCode: ledger.code,
           lastSyncedAt: ledger.updatedAt,
+          permission: ledger.permission,
+          readCode: ledger.readCode ?? status.readCode,
           syncState: "idle",
         }));
         if (!silent) setToast({ message: "共有家計簿を最新にしました。", tone: "info" });
@@ -270,6 +303,16 @@ export function useKakeibo() {
     setToast({ message, tone });
   }
 
+  function canEditSharedBook() {
+    return sharedLedgerStatus.mode !== "shared" || sharedLedgerStatus.permission === "editor";
+  }
+
+  function blockReadOnlyEdit() {
+    if (canEditSharedBook()) return false;
+    notify("閲覧コードで参加中のため、この端末からは編集できません。", "warning");
+    return true;
+  }
+
   function updateSharedLedgerJoinCode(joinCode: string) {
     setSharedLedgerStatus((status) => ({ ...status, joinCode: joinCode.toUpperCase() }));
   }
@@ -289,12 +332,15 @@ export function useKakeibo() {
       setSharedLedgerStatus({
         code: ledger.code,
         configured: true,
+        editCode: ledger.editCode ?? ledger.code,
         joinCode: ledger.code,
         lastSyncedAt: ledger.updatedAt,
         mode: "shared",
+        permission: ledger.permission,
+        readCode: ledger.readCode ?? ledger.code,
         syncState: "idle",
       });
-      notify(`共有コード ${ledger.code} を作成しました。`);
+      notify("共有コードを作成しました。");
     } catch {
       setSharedLedgerStatus((status) => ({ ...status, syncState: "error" }));
       notify("共有家計簿を作成できませんでした。", "warning");
@@ -316,9 +362,12 @@ export function useKakeibo() {
       setSharedLedgerStatus({
         code: ledger.code,
         configured: true,
+        editCode: ledger.editCode ?? "",
         joinCode: ledger.code,
         lastSyncedAt: ledger.updatedAt,
         mode: "shared",
+        permission: ledger.permission,
+        readCode: ledger.readCode ?? ledger.code,
         syncState: "idle",
       });
       notify("共有家計簿に参加しました。");
@@ -335,9 +384,12 @@ export function useKakeibo() {
     setSharedLedgerStatus((status) => ({
       ...status,
       code: "",
+      editCode: "",
       joinCode: "",
       lastSyncedAt: "",
       mode: "local",
+      permission: "editor",
+      readCode: "",
       syncState: "idle",
     }));
     notify("この端末をローカル保存に戻しました。", "info");
@@ -370,6 +422,7 @@ export function useKakeibo() {
 
   function submitTransaction(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (blockReadOnlyEdit()) return;
     if (!transactionForm.amount || transactionForm.amount < 1) {
       notify("金額を入力してください。", "warning");
       return;
@@ -418,6 +471,7 @@ export function useKakeibo() {
   }
 
   function deleteTransaction(id: string) {
+    if (blockReadOnlyEdit()) return;
     setTransactions((items) => items.filter((item) => item.id !== id));
     if (editingTransactionId === id) cancelEdit();
     notify("明細を削除しました。", "info");
@@ -425,6 +479,7 @@ export function useKakeibo() {
 
   function submitFixedCost(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (blockReadOnlyEdit()) return;
     if (!fixedCostForm.name.trim() || !fixedCostForm.amount || fixedCostForm.amount < 1) {
       notify("固定費の名称と金額を入力してください。", "warning");
       return;
@@ -435,15 +490,18 @@ export function useKakeibo() {
   }
 
   function toggleFixedCost(id: string) {
+    if (blockReadOnlyEdit()) return;
     setFixedCosts((items) => items.map((item) => (item.id === id ? { ...item, enabled: !item.enabled } : item)));
   }
 
   function deleteFixedCost(id: string) {
+    if (blockReadOnlyEdit()) return;
     setFixedCosts((items) => items.filter((item) => item.id !== id));
     notify("固定費を削除しました。", "info");
   }
 
   function applyFixedCosts() {
+    if (blockReadOnlyEdit()) return;
     const enabledCosts = fixedCosts.filter((cost) => cost.enabled);
 
     if (!enabledCosts.length) {
@@ -488,6 +546,7 @@ export function useKakeibo() {
   }
 
   function updateMonthStartDay(day: number) {
+    if (blockReadOnlyEdit()) return;
     const monthStartDay = clampMonthStartDay(day);
     setSettings((current) => ({ ...current, monthStartDay }));
     setCurrentMonth(getPeriodMonthKeyForDate(selectedDate, monthStartDay));
@@ -507,6 +566,10 @@ export function useKakeibo() {
   }
 
   function importData(event: ChangeEvent<HTMLInputElement>) {
+    if (blockReadOnlyEdit()) {
+      if (fileInputRef.current) fileInputRef.current.value = "";
+      return;
+    }
     const file = event.target.files?.[0];
     if (!file) return;
     const reader = new FileReader();

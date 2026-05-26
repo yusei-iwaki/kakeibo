@@ -51,6 +51,7 @@ export function FixedCostSection({
       : sharedLedgerStatus.syncState === "error"
         ? "要確認"
         : "同期OK";
+  const canEditSharedBook = sharedLedgerStatus.mode !== "shared" || sharedLedgerStatus.permission === "editor";
 
   return (
     <section className="settings-page">
@@ -103,19 +104,36 @@ export function FixedCostSection({
         <div className="share-panel-head">
           <div>
             <span>共有家計簿</span>
-            <strong>{sharedLedgerStatus.mode === "shared" ? "共有中" : "ローカル保存"}</strong>
+            <strong>
+              {sharedLedgerStatus.mode === "shared"
+                ? sharedLedgerStatus.permission === "editor"
+                  ? "編集できます"
+                  : "閲覧のみ"
+                : "ローカル保存"}
+            </strong>
           </div>
           <p>{syncLabel}</p>
         </div>
 
         {sharedLedgerStatus.mode === "shared" ? (
-          <div className="share-code-box">
-            <span>共有コード</span>
-            <strong>{sharedLedgerStatus.code}</strong>
-          </div>
+          <>
+            <div className="share-code-box">
+              <span>閲覧コード</span>
+              <strong>{sharedLedgerStatus.readCode || sharedLedgerStatus.code}</strong>
+            </div>
+            {sharedLedgerStatus.permission === "editor" && sharedLedgerStatus.editCode ? (
+              <div className="share-code-box">
+                <span>編集コード</span>
+                <strong>{sharedLedgerStatus.editCode}</strong>
+              </div>
+            ) : null}
+            {!canEditSharedBook ? (
+              <p className="share-panel-copy">閲覧コードで参加中です。追加や削除は編集コードで参加した端末だけ行えます。</p>
+            ) : null}
+          </>
         ) : (
           <p className="share-panel-copy">
-            共有コードを作ると、この家計簿を別端末や家族の端末から同じ内容で開けます。
+            共有を開始すると、見るだけの閲覧コードと編集できる編集コードを発行します。
           </p>
         )}
 

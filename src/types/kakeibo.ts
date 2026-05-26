@@ -32,16 +32,22 @@ export type StoredData = {
 export type SharedLedger = {
   code: string;
   data: StoredData;
+  editCode?: string;
   name: string;
+  permission: "viewer" | "editor";
+  readCode?: string;
   updatedAt: string;
 };
 
 export type SharedLedgerStatus = {
   code: string;
   configured: boolean;
+  editCode: string;
   joinCode: string;
   lastSyncedAt: string;
   mode: "local" | "shared";
+  permission: "viewer" | "editor";
+  readCode: string;
   syncState: "idle" | "loading" | "refreshing" | "saving" | "error";
 };
 
