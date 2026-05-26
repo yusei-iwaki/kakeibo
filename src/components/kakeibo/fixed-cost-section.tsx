@@ -22,8 +22,12 @@ type FixedCostSectionProps = {
   updateMonthStartDay: (day: number) => void;
 };
 
-function buildLineShareUrl(label: string, code: string) {
-  const message = `kakeiboの${label}です。\n${code}`;
+function buildLineShareUrl(label: string, code: string, appUrl: string) {
+  const messageLines = ["暮らしのお金", `${label}: ${code}`];
+  if (appUrl) {
+    messageLines.push(`URL: ${appUrl}`, `アイコン: ${appUrl}/icon-512.png`);
+  }
+  const message = messageLines.join("\n");
   return `https://line.me/R/share?text=${encodeURIComponent(message)}`;
 }
 
@@ -57,6 +61,10 @@ export function FixedCostSection({
         ? "要確認"
         : "同期OK";
   const canEditSharedBook = sharedLedgerStatus.mode !== "shared" || sharedLedgerStatus.permission === "editor";
+
+  function shareToLine(label: string, code: string) {
+    window.open(buildLineShareUrl(label, code, window.location.origin), "_blank", "noopener,noreferrer");
+  }
 
   return (
     <section className="settings-page">
@@ -127,14 +135,13 @@ export function FixedCostSection({
                 <span>閲覧コード</span>
                 <strong>{sharedLedgerStatus.readCode || sharedLedgerStatus.code}</strong>
               </div>
-              <a
+              <button
                 className="line-share-button"
-                href={buildLineShareUrl("閲覧コード", sharedLedgerStatus.readCode || sharedLedgerStatus.code)}
-                rel="noreferrer"
-                target="_blank"
+                onClick={() => shareToLine("閲覧コード", sharedLedgerStatus.readCode || sharedLedgerStatus.code)}
+                type="button"
               >
                 LINEで送る
-              </a>
+              </button>
             </div>
             {sharedLedgerStatus.permission === "editor" && sharedLedgerStatus.editCode ? (
               <div className="share-code-box">
@@ -142,14 +149,13 @@ export function FixedCostSection({
                   <span>編集コード</span>
                   <strong>{sharedLedgerStatus.editCode}</strong>
                 </div>
-                <a
+                <button
                   className="line-share-button"
-                  href={buildLineShareUrl("編集コード", sharedLedgerStatus.editCode)}
-                  rel="noreferrer"
-                  target="_blank"
+                  onClick={() => shareToLine("編集コード", sharedLedgerStatus.editCode)}
+                  type="button"
                 >
                   LINEで送る
-                </a>
+                </button>
               </div>
             ) : null}
             {!canEditSharedBook ? (
