@@ -109,6 +109,7 @@ export function AppShell({ kakeibo }: AppShellProps) {
               editTransaction={kakeibo.editTransaction}
               editingTransactionId={kakeibo.editingTransactionId}
               selectedTransactions={kakeibo.selectedTransactions}
+              sharedLedgerStatus={kakeibo.sharedLedgerStatus}
               submitTransaction={kakeibo.submitTransaction}
               transactionForm={kakeibo.transactionForm}
               updateTransactionForm={kakeibo.updateTransactionForm}

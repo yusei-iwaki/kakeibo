@@ -238,6 +238,62 @@ textarea {
   gap: 12px;
 }
 
+.ledger-mode-banner {
+  display: flex;
+  min-height: 44px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 12px 12px 0;
+  border: 1px solid rgba(216, 210, 200, 0.9);
+  border-radius: 12px;
+  background: rgba(255, 253, 248, 0.88);
+  padding: 8px 10px;
+  box-shadow:
+    var(--shadow-hair),
+    0 6px 16px rgba(48, 40, 30, 0.04);
+}
+
+.ledger-mode-banner span {
+  min-width: max-content;
+  border-radius: 999px;
+  padding: 5px 9px;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.ledger-mode-banner strong {
+  color: #5f574e;
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 1.35;
+  text-align: right;
+}
+
+.ledger-mode-banner.local span {
+  background: #f1ebe2;
+  color: #6b6259;
+}
+
+.ledger-mode-banner.editor span {
+  background: #edf3ea;
+  color: #4e724b;
+}
+
+.ledger-mode-banner.viewer {
+  border-color: #efc5b8;
+  background: #fff8f4;
+}
+
+.ledger-mode-banner.viewer span {
+  background: #fff2ee;
+  color: #b64a33;
+}
+
+.ledger-mode-banner.viewer strong {
+  color: #9b3f2e;
+}
+
 .entry-form {
   display: grid;
   align-content: start;
