@@ -1197,11 +1197,38 @@ textarea {
 }
 
 .share-code-box strong {
+  display: block;
   color: #3e3932;
   font-family: var(--font-mono);
   font-size: 18px;
   font-weight: 800;
   letter-spacing: 0.08em;
+}
+
+.line-share-button {
+  display: inline-flex;
+  min-height: 34px;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: #06c755;
+  padding: 0 12px;
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 900;
+  text-decoration: none;
+  transition:
+    transform 110ms ease,
+    filter 140ms ease;
+}
+
+.line-share-button:hover {
+  filter: brightness(0.96);
+}
+
+.line-share-button:active {
+  transform: scale(0.98);
 }
 
 .share-actions {

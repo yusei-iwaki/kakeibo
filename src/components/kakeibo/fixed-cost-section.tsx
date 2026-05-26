@@ -22,6 +22,11 @@ type FixedCostSectionProps = {
   updateMonthStartDay: (day: number) => void;
 };
 
+function buildLineShareUrl(label: string, code: string) {
+  const message = `kakeiboの${label}です。\n${code}`;
+  return `https://line.me/R/share?text=${encodeURIComponent(message)}`;
+}
+
 export function FixedCostSection({
   applyFixedCosts,
   createSharedBook,
@@ -118,13 +123,33 @@ export function FixedCostSection({
         {sharedLedgerStatus.mode === "shared" ? (
           <>
             <div className="share-code-box">
-              <span>閲覧コード</span>
-              <strong>{sharedLedgerStatus.readCode || sharedLedgerStatus.code}</strong>
+              <div>
+                <span>閲覧コード</span>
+                <strong>{sharedLedgerStatus.readCode || sharedLedgerStatus.code}</strong>
+              </div>
+              <a
+                className="line-share-button"
+                href={buildLineShareUrl("閲覧コード", sharedLedgerStatus.readCode || sharedLedgerStatus.code)}
+                rel="noreferrer"
+                target="_blank"
+              >
+                LINEで送る
+              </a>
             </div>
             {sharedLedgerStatus.permission === "editor" && sharedLedgerStatus.editCode ? (
               <div className="share-code-box">
-                <span>編集コード</span>
-                <strong>{sharedLedgerStatus.editCode}</strong>
+                <div>
+                  <span>編集コード</span>
+                  <strong>{sharedLedgerStatus.editCode}</strong>
+                </div>
+                <a
+                  className="line-share-button"
+                  href={buildLineShareUrl("編集コード", sharedLedgerStatus.editCode)}
+                  rel="noreferrer"
+                  target="_blank"
+                >
+                  LINEで送る
+                </a>
               </div>
             ) : null}
             {!canEditSharedBook ? (
