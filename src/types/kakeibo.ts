@@ -45,6 +45,7 @@ export type SharedLedgerStatus = {
   editCode: string;
   joinCode: string;
   lastSyncedAt: string;
+  message: string;
   mode: "local" | "shared";
   permission: "viewer" | "editor";
   readCode: string;

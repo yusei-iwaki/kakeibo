@@ -1,4 +1,4 @@
-import { createSharedLedger, isSharedLedgerConfigured } from "@/lib/db/shared-ledgers";
+import { checkSharedLedgerConnection, createSharedLedger, isSharedLedgerConfigured } from "@/lib/db/shared-ledgers";
 import { parseStoredData } from "@/lib/kakeibo";
 
 export const runtime = "nodejs";
@@ -16,7 +16,7 @@ async function readJsonBody(request: Request) {
 }
 
 export async function GET() {
-  return Response.json({ configured: isSharedLedgerConfigured() });
+  return Response.json(await checkSharedLedgerConnection());
 }
 
 export async function POST(request: Request) {
@@ -40,6 +40,6 @@ export async function POST(request: Request) {
     }
 
     console.error("Failed to create shared ledger", error);
-    return Response.json({ error: "Failed to create shared ledger." }, { status: 500 });
+    return Response.json({ error: "Database connection failed." }, { status: 503 });
   }
 }

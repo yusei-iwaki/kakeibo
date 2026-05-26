@@ -170,7 +170,9 @@ export function FixedCostSection({
         </div>
 
         {!sharedLedgerStatus.configured ? (
-          <p className="share-warning">サーバーの DATABASE_URL が未設定のため、共有はまだ使えません。</p>
+          <p className="share-warning">
+            {sharedLedgerStatus.message || "サーバーの DATABASE_URL が未設定のため、共有はまだ使えません。"}
+          </p>
         ) : null}
       </div>
 

@@ -6,6 +6,7 @@ type SharedLedgerResponse = {
 
 type SharedLedgerConfigResponse = {
   configured: boolean;
+  message?: string;
 };
 
 async function readJson<T>(response: Response): Promise<T> {

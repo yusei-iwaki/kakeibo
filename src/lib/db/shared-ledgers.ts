@@ -72,7 +72,10 @@ async function ensureSchema() {
       await sql`ALTER TABLE shared_ledgers ADD COLUMN IF NOT EXISTS edit_code text`;
       await sql`CREATE UNIQUE INDEX IF NOT EXISTS shared_ledgers_read_code_idx ON shared_ledgers (read_code)`;
       await sql`CREATE UNIQUE INDEX IF NOT EXISTS shared_ledgers_edit_code_idx ON shared_ledgers (edit_code)`;
-    })();
+    })().catch((error) => {
+      schemaReady = null;
+      throw error;
+    });
   }
 
   return schemaReady;
@@ -112,6 +115,23 @@ export function isSharedLedgerConfigured() {
   } catch (error) {
     console.error("Invalid DATABASE_URL", error);
     return false;
+  }
+}
+
+export async function checkSharedLedgerConnection() {
+  if (!isSharedLedgerConfigured()) {
+    return { configured: false, message: "DATABASE_URL is not configured." };
+  }
+
+  try {
+    await ensureSchema();
+    return { configured: true, message: "" };
+  } catch (error) {
+    console.error("Shared ledger database is not reachable", error);
+    return {
+      configured: false,
+      message: "DATABASE_URL is configured, but the database connection failed.",
+    };
   }
 }
 

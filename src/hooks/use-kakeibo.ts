@@ -55,6 +55,7 @@ export function useKakeibo() {
     editCode: "",
     joinCode: "",
     lastSyncedAt: "",
+    message: "",
     mode: "local",
     permission: "editor",
     readCode: "",
@@ -91,6 +92,7 @@ export function useKakeibo() {
             editCode: "",
             joinCode: savedCode,
             lastSyncedAt: status.lastSyncedAt,
+            message: "",
             mode: "shared",
             permission: "viewer",
             readCode: "",
@@ -105,6 +107,7 @@ export function useKakeibo() {
             editCode: ledger.editCode ?? "",
             joinCode: ledger.code,
             lastSyncedAt: ledger.updatedAt,
+            message: "",
             mode: "shared",
             permission: ledger.permission,
             readCode: ledger.readCode ?? ledger.code,
@@ -118,6 +121,7 @@ export function useKakeibo() {
             editCode: "",
             joinCode: savedCode,
             lastSyncedAt: "",
+            message: config.message ?? "",
             mode: "local",
             permission: "editor",
             readCode: "",
@@ -133,6 +137,7 @@ export function useKakeibo() {
           editCode: "",
           joinCode: savedCode,
           lastSyncedAt: "",
+          message: "共有家計簿の設定を確認できませんでした。",
           mode: "local",
           permission: "editor",
           readCode: "",
@@ -335,6 +340,7 @@ export function useKakeibo() {
         editCode: ledger.editCode ?? ledger.code,
         joinCode: ledger.code,
         lastSyncedAt: ledger.updatedAt,
+        message: "",
         mode: "shared",
         permission: ledger.permission,
         readCode: ledger.readCode ?? ledger.code,
@@ -343,7 +349,7 @@ export function useKakeibo() {
       notify("共有コードを作成しました。");
     } catch {
       setSharedLedgerStatus((status) => ({ ...status, syncState: "error" }));
-      notify("共有家計簿を作成できませんでした。", "warning");
+      notify("共有家計簿を作成できませんでした。DATABASE_URLを確認してください。", "warning");
     }
   }
 
@@ -365,6 +371,7 @@ export function useKakeibo() {
         editCode: ledger.editCode ?? "",
         joinCode: ledger.code,
         lastSyncedAt: ledger.updatedAt,
+        message: "",
         mode: "shared",
         permission: ledger.permission,
         readCode: ledger.readCode ?? ledger.code,
@@ -387,6 +394,7 @@ export function useKakeibo() {
       editCode: "",
       joinCode: "",
       lastSyncedAt: "",
+      message: status.message,
       mode: "local",
       permission: "editor",
       readCode: "",
